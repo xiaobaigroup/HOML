@@ -1,0 +1,3 @@
+[submodule "xb_components"]
+	path = xb_components
+	url = https://gitee.com/xiaobai-studio/xb_components.git

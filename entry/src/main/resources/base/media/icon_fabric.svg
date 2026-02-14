@@ -1,0 +1,12 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32.000000" height="32.000000" fill="none" clip-path="url(#clipPath_0)" customFrame="url(#clipPath_0)">
+	<defs>
+		<image id="image_0" width="52.000000" height="56.000000" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADQAAAA4CAYAAACyutuQAAAABHNCSVQICAgIfAhkiAAAAYZJREFUaIHtmiFPA0EQhSmpQBAwB6mi6CY4BL4J4QfUUkGqkBU1bRAEQSruF+Bq+wMICR6Ba1LfKgJnaoqktvOu2clyc2WYzOcm29vuy+zL2+xdZWfLXJw3ftbrt/dpRXL+XcnJNOCCtCO6fzeBnhk9Dcn4dadH6qKeMtchF6Sd6rb/8CtbkHqDpwrllLkOuSDtiOdQbO483HVJXT+pBX/Pecpch1yQdgp7CD2TPvbJ+FFyGHxe2lPmOuSCtBPtIS5nEDy7FfXU4D4NPm+uQy5IO6yHYj3DgZ5ClstvUqNnri6bpH5+eSW1uQ65IO3k7hTKzhkcn80/wisE0DN+lvtvmBNURc/0urdRE6AnuJzhPIa54/dyf70AacwJyuVQln2SejKl42eN0+CEXM7M5uGzmr8fAlyQdnL7FXPppt0i40lyTGrOU+ghac8g5jrkgrQTfafAeepgf4/UZXsGMdchF6Qd9juF/J4fBz01TMcCy/o95jrkgrQj/o4VKTt3EHMdckHaWQENgIMjp53fhwAAAABJRU5ErkJggg==" />
+		<pattern id="pattern_0" width="1.000000" height="1.000000" image-fill-type="fill" patternContentUnits="objectBoundingBox">
+			<use transform="matrix(0.0192308,0,0,0.0192308,0,-0.0384615)" xlink:href="#image_0" />
+		</pattern>
+		<clipPath id="clipPath_0">
+			<rect width="32.000000" height="32.000000" x="0.000000" y="0.000000" rx="4.000000" fill="rgb(255,255,255)" />
+		</clipPath>
+	</defs>
+	<rect id="容器 14" width="32.000000" height="32.000000" x="0.000000" y="0.000000" rx="4.000000" fill="url(#pattern_0)" />
+</svg>

@@ -1,5 +1,6 @@
 import { VersionModel } from "../common/model/VersionModel";
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
+import { HOMLState } from "../entryability/AppState";
 
 
 @ComponentV2
@@ -9,6 +10,7 @@ export struct VersionListView {
 
   @Param items: VersionModel[] = []
   @Param smallType: boolean = false
+  @Param contentEndOffset: number = 0
   @Param itemBackgroundColor: Resource | string | number = $r('app.color.blue')
 
   @Event onItemClick: (data: VersionModel) => void
@@ -30,10 +32,11 @@ export struct VersionListView {
       })
     }
     .width('100%')
+    .contentEndOffset(this.contentEndOffset)
   }
 
   aboutToAppear(): void {
-    if (this.items.length > 0) {
+    if (this.items.length > 0 && HOMLState.widthBp >= 2) {
       this.onItemClick(this.items[0])
     }
   }

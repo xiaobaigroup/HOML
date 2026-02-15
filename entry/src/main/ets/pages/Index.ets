@@ -41,6 +41,7 @@ struct Index {
             }
           })
         }
+        .margin({ top: HOMLState.widthBp < 2 ? 40 : 0 })
         .width(MainTabButtonWidth(HOMLState.widthBp))
         .id('main_tab_button')
         .alignRules({
@@ -48,17 +49,19 @@ struct Index {
           top: { anchor: "__container__", align: VerticalAlign.Top }
         })
         // 自定义窗口控制区
-        Row() {
+        if (HOMLState.windowMode) {
+          Row() {
 
-        }.width(120)
-        .height(56)
-        .borderColor(Color.Black)
-        .borderWidth(2)
-        .id('window_control')
-        .alignRules({
-          right: { anchor: '__container__', align: HorizontalAlign.End },
-          top: { anchor: '__container__', align: VerticalAlign.Top }
-        })
+          }.width(120)
+          .height(56)
+          .borderColor(Color.Black)
+          .borderWidth(2)
+          .id('window_control')
+          .alignRules({
+            right: { anchor: '__container__', align: HorizontalAlign.End },
+            top: { anchor: '__container__', align: VerticalAlign.Top }
+          })
+        }
       }
       .height(56)
       .margin({ left: 12, top: HOMLState.topRectHeight })

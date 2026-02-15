@@ -39,9 +39,14 @@ export struct Versions {
         // 版本列表
         VersionListView({
           items: HOMLState.versions,
+          contentEndOffset: 100 + HOMLState.bottomRectHeight,
           itemBackgroundColor: $r('app.color.blue'),
           onItemClick: (data) => {
-            this.pageStack.replacePathByName('version_detail', data, true)
+            if (HOMLState.widthBp < 2) {
+              this.pageStack.pushPathByName('version_detail', data, true)
+            } else {
+              this.pageStack.replacePathByName('version_detail', data, true)
+            }
           }
         })
           .padding({ left: 12, right: 12 })

@@ -1,31 +1,52 @@
+import { StartButtonWidth } from "../common/constants/Constants"
 import { VersionListView } from "../components/VersionListView"
 import { HOMLState } from "../entryability/AppState"
 import { Versions } from "../view/Versions"
+import { LengthMetrics } from "@kit.ArkUI"
+import { Xb_CapsuleButton } from "xb_components"
 
 
 @ComponentV2
 export struct Home {
 
+  @Local showUserInfo: boolean = false
+
   build() {
     RelativeContainer() {
       // 用户管理
-      Row() {
-        Text('用户空间')
-      }.width(150)
-      .height(69)
-      .borderColor(Color.Black)
-      .borderWidth(2)
+      Column({ space: 10 }) {
+        if (this.showUserInfo) {
+          this.avatarAndName()
+          this.UserInfoConfig()
+        } else {
+          Text('早上好，')
+            .fontSize(18)
+            .fontWeight(FontWeight.Medium)
+          this.avatarAndName()
+        }
+      }
+      .padding(9)
+      .borderRadius(16)
+      .alignItems(HorizontalAlign.Start)
+      .constraintSize({ maxWidth: 210, maxHeight: 112 })
+      .margin({ bottom: HOMLState.widthBp < 2 ? 76 : 0 })
+      .backgroundColor(this.showUserInfo ? $r('sys.color.background_primary') : undefined)
+      .shadow(this.showUserInfo ? { radius: 32, color: $r('sys.color.ohos_id_blur_style_background_thin_color') } : undefined)
       .id('user')
       .alignRules({
         left: { anchor: '__container__', align: HorizontalAlign.Start },
         bottom: { anchor: '__container__', align: VerticalAlign.Bottom }
       })
+      .onClick(() => {
+        this.showUserInfo = !this.showUserInfo
+      })
 
-      // 启动
+      // 版本管理区
       Row({ space: 10 }) {
         // 版本信息半模态窗口
         Button({ type: ButtonType.Normal }) {
           SymbolGlyph($r('sys.symbol.dot_grid_2x2'))
+            .fontColor([$r('sys.color.font_primary')])
             .fontSize(29)
         }
         .width(56)
@@ -36,7 +57,7 @@ export struct Home {
           HOMLState.showVersions = true
           console.log(`showVersions：${HOMLState.showVersions}`)
         })
-        // 启动
+        // 启动游戏
         Button({ type: ButtonType.Normal }) {
           Column({ space: 5 }) {
             Text('启动 Minecraft')
@@ -48,7 +69,7 @@ export struct Home {
               .fontColor($r('sys.color.font_on_primary'))
           }
         }
-        .width(232)
+        .width(StartButtonWidth)
         .height(56)
         .borderRadius(12)
         .margin({ right: 12 })
@@ -67,6 +88,7 @@ export struct Home {
     }
     .width('100%')
     .height('100%')
+    .backgroundColor($r('sys.color.background_secondary'))
     .padding({ left: 12,  top: HOMLState.topRectHeight, bottom: HOMLState.bottomRectHeight})
     .bindSheet(HOMLState.showVersions!!, this.VersionsBuilder(), {
       detents: [HOMLState.windowHeight - HOMLState.topRectHeight - 56],
@@ -88,7 +110,8 @@ export struct Home {
   }
 
   aboutToAppear(): void {
-    HOMLState.versions.push({
+    HOMLState.versions.push(
+      {
       id: 0,
       name: '1.21.11-Fabric 0.18.4',
       version_code: '1.21.11',
@@ -109,12 +132,60 @@ export struct Home {
         isolation: true,
         ignore_java_comp: true,
         file_verification: false
-      })
+      },
+      {
+        id: 2,
+        name: 'Hy',
+        version_code: '1.21.11',
+        mod: 'normal',
+        mod_version: '',
+        global: true,
+        isolation: true,
+        ignore_java_comp: true,
+        file_verification: false
+      }
+    )
   }
 
   @Builder
   VersionsBuilder() {
     Versions()
+  }
+
+  @Builder
+  avatarAndName() {
+    Flex({ direction: FlexDirection.Row, space: { main: LengthMetrics.vp(10) }, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center}) {
+      Image($r('app.media.default_avatar'))
+        .width(40)
+        .height(40)
+      Text('默认用户')
+        .fontSize(21)
+        .fontWeight(FontWeight.Bold)
+    }
+  }
+
+  @Builder
+  UserInfoConfig() {
+    List({space: 3}) {
+      ForEach(this.getUserFunBar, (item: UserInfoFunctionModel, index) => {
+        ListItem() {
+          Xb_CapsuleButton({
+            icon: item.icon,
+            image: item.image,
+            text: item.title,
+            iconColor: $r('app.color.blue'),
+            theBackgroundColor: $r('sys.color.button_background_color_transparent'),
+            onCheck: () => {
+              item.onAction()
+            },
+          })
+        }
+      })
+    }
+    .height(30)
+    .scrollBar(BarState.Off)
+    .listDirection(Axis.Horizontal)
+    .alignListItem(ListItemAlign.Center)
   }
 
   @Builder MenuBuilder() {
@@ -128,8 +199,42 @@ export struct Home {
         }
       })
     }
-    .width(217)
+    .width(StartButtonWidth - 20)
     .padding(6)
   }
 
+  get getUserFunBar(): UserInfoFunctionModel[] {
+    return [
+      {
+        icon: $r('sys.symbol.clothing_fill'),
+        title: '更衣间',
+        onAction: async () => {
+
+        }
+      },
+      {
+        icon: $r('sys.symbol.arrow_2_circlepath'),
+        title: '换账号',
+        onAction: async () => {
+
+        }
+      },
+      {
+        image: $r('app.media.microsoft'),
+        title: '微软',
+        onAction: async () => {
+
+        }
+      }
+    ]
+  }
+
+}
+
+
+interface UserInfoFunctionModel {
+  icon?: Resource
+  image?: Resource
+  title: ResourceStr
+  onAction: () => void
 }

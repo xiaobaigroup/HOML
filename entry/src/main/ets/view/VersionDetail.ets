@@ -1,7 +1,6 @@
 import { Xb_ActionType, ThemeType, Xb_SettingsItem, Xb_SettingsItemData, Xb_CapsuleButton } from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionModel } from "../common/model/VersionModel"
-import { LengthMetrics } from "@kit.ArkUI"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../common/model/VersionFunctionModel"
 import { HOMLState } from "../entryability/AppState"
@@ -28,7 +27,7 @@ struct VersionDetail {
             Column() {
               VersionItemView(this.currentVersion!)
               List({space: 3}) {
-                ForEach(this.getDownloadBarModel(), (item: VersionFunctionModel, index) => {
+                ForEach(this.getVersionBarModel(), (item: VersionFunctionModel, index) => {
                   ListItem() {
                     Xb_CapsuleButton({
                       icon: item.icon,
@@ -171,7 +170,7 @@ struct VersionDetail {
     )
   }
 
-  getDownloadBarModel(): VersionFunctionModel[] {
+  getVersionBarModel(): VersionFunctionModel[] {
     return [
       {
         icon: $r('sys.symbol.play_fill'),

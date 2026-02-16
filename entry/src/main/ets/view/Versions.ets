@@ -1,11 +1,12 @@
-
+import { Xb_getAppStore } from "xb_components"
 import { VersionListView } from "../components/VersionListView"
+import { HomlViewModel } from "../core/HomlViewModel"
 import { HOMLState } from "../entryability/AppState"
 
 
 @ComponentV2
 export struct Versions {
-
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
@@ -38,7 +39,7 @@ export struct Versions {
           })
         // 版本列表
         VersionListView({
-          items: HOMLState.versions,
+          items: this.viewmodel.versions,
           contentEndOffset: 100 + HOMLState.bottomRectHeight,
           itemBackgroundColor: $r('app.color.blue'),
           onItemClick: (data) => {

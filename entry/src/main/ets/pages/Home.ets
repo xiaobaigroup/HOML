@@ -3,13 +3,15 @@ import { VersionListView } from "../components/VersionListView"
 import { HOMLState } from "../entryability/AppState"
 import { Versions } from "../view/Versions"
 import { LengthMetrics } from "@kit.ArkUI"
-import { Xb_CapsuleButton } from "xb_components"
+import { Xb_CapsuleButton, Xb_getAppStore } from "xb_components"
+import { HomlViewModel } from "../core/HomlViewModel"
 
 
 @ComponentV2
 export struct Home {
-
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
   @Local showUserInfo: boolean = false
+
 
   build() {
     RelativeContainer() {
@@ -64,11 +66,17 @@ export struct Home {
               .fontSize(18)
               .fontColor($r('sys.color.font_on_primary'))
             // 版本
-            Text('1.21.1')
+            Text(this.viewmodel.current?.name ?? '未选择')
               .fontSize(15)
               .fontColor($r('sys.color.font_on_primary'))
           }
-        }
+        }.onClick(()=>{
+          if(!this.viewmodel.current){
+            HOMLState.showVersions = true
+          }else{
+
+          }
+        })
         .width(StartButtonWidth)
         .height(56)
         .borderRadius(12)
@@ -110,41 +118,7 @@ export struct Home {
   }
 
   aboutToAppear(): void {
-    HOMLState.versions.push(
-      {
-      id: 0,
-      name: '1.21.11-Fabric 0.18.4',
-      version_code: '1.21.11',
-      mod: 'fabric',
-      mod_version: '0.18.4',
-      global: true,
-      isolation: false,
-      ignore_java_comp: false,
-      file_verification: true
-    },
-      {
-        id: 1,
-        name: 'Hy',
-        version_code: '1.21.11',
-        mod: 'normal',
-        mod_version: '',
-        global: true,
-        isolation: true,
-        ignore_java_comp: true,
-        file_verification: false
-      },
-      {
-        id: 2,
-        name: 'Hy',
-        version_code: '1.21.11',
-        mod: 'normal',
-        mod_version: '',
-        global: true,
-        isolation: true,
-        ignore_java_comp: true,
-        file_verification: false
-      }
-    )
+    this.viewmodel.loadVersions()
   }
 
   @Builder
@@ -191,11 +165,10 @@ export struct Home {
   @Builder MenuBuilder() {
     Column() {
       VersionListView({
-        items: HOMLState.versions,
+        items: this.viewmodel.versions,
         smallType: true,
         itemBackgroundColor: $r('app.color.green'),
         onItemClick: (data) => {
-
         }
       })
     }

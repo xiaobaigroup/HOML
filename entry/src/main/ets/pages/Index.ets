@@ -1,8 +1,6 @@
-import { hilog } from '@kit.PerformanceAnalysisKit';
-import testNapi from 'libentry.so';
-import { Xb_SwitchButton } from 'xb_components';
-import { Xb_TopTitleBar } from 'xb_components/src/main/ets/components/Xb_TopTitleBar';
+import { Xb_getAppStore, Xb_SwitchButton } from 'xb_components';
 import { MainTabButtonWidth } from '../common/BreakPoint';
+import { HomlViewModel } from '../core/HomlViewModel';
 import { HOMLState } from '../entryability/AppState';
 import { Home } from './Home';
 import { Settings } from './Settings';
@@ -11,7 +9,7 @@ import { Settings } from './Settings';
 @Entry
 @ComponentV2
 struct Index {
-
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel,()=> new HomlViewModel())!
   build() {
     Stack() {
       if (HOMLState.mainCurrentTab == 0) {

@@ -8,7 +8,6 @@ export class _HOMLState {
   @Trace mainCurrentTab: number = 0
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
-  @Trace versions: VersionModel[] = []
   @Trace pageStack: NavPathStack = new NavPathStack()
 
   // -- 窗口相关 --

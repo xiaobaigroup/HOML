@@ -1,12 +1,13 @@
+import { Xb_getAppStore } from "xb_components";
 import { VersionModel } from "../common/model/VersionModel";
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
+import { HomlViewModel } from "../core/HomlViewModel";
 import { HOMLState } from "../entryability/AppState";
 
 
 @ComponentV2
 export struct VersionListView {
-
-  @Local currentVersionID: number | null = 0
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
 
   @Param items: VersionModel[] = []
   @Param smallType: boolean = false
@@ -22,11 +23,11 @@ export struct VersionListView {
           VersionItemView(item, this.smallType)
         }
         .borderRadius(8)
-        .backgroundColor(this.currentVersionID == item.id ?
+        .backgroundColor(this.viewmodel.current?.id == item.id ?
           getColorWithTransparency(this.getUIContext().getHostContext()!, this.itemBackgroundColor, 0.2) : undefined)
         .padding({ left: this.smallType ? 6 : 12, right: this.smallType ? 6 : 12 })
         .onClick(() => {
-          this.currentVersionID = item.id
+          this.viewmodel.current = item
           this.onItemClick(item)
         })
       })

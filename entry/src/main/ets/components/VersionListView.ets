@@ -3,22 +3,23 @@ import { VersionModel } from "../common/model/VersionModel";
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
 import { HomlViewModel } from "../core/HomlViewModel";
 import { HOMLState } from "../entryability/AppState";
+import { MinecraftVersion } from "../model/MinecraftVersion";
 
 
 @ComponentV2
 export struct VersionListView {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
 
-  @Param items: VersionModel[] = []
+  @Param items: MinecraftVersion[] = []
   @Param smallType: boolean = false
   @Param contentEndOffset: number = 0
   @Param itemBackgroundColor: Resource | string | number = $r('app.color.blue')
 
-  @Event onItemClick: (data: VersionModel) => void
+  @Event onItemClick: (data: MinecraftVersion) => void
 
   build() {
     List({ space: 10 }) {
-      ForEach(this.items, (item: VersionModel) => {
+      ForEach(this.items, (item: MinecraftVersion) => {
         ListItem() {
           VersionItemView(item, this.smallType)
         }
@@ -44,17 +45,41 @@ export struct VersionListView {
 
 }
 
+function version_code(item:MinecraftVersion){
+  let game = item.patches?.find(d=> d.id == "game")
+  if(!game)
+    game = item.patches?.[0]
+  if(game)
+    return game.version
+  return ""
+}
+function mod_version(item: MinecraftVersion){
+  if(!item.patches)
+    return ""
+  if(item.patches.length > 1){
+    return item.patches[1].version
+  }
+  return ""
+}
+function mod_name(item: MinecraftVersion){
+  if(!item.patches)
+    return "normal"
+  if (item.patches.length > 1){
+    return item.patches[1].id
+  }
+  return "normal"
+}
 @Builder
-export function VersionItemView(item: VersionModel, small: boolean = false) {
+export function VersionItemView(item: MinecraftVersion, small: boolean = false) {
   Row({ space: small ? 5 : 10 }) {
-    Image(getIconResource(item.mod))
+    Image(getIconResource(mod_name(item)))
       .width(small ? 25 : 40)
       .height(small ? 25 : 40)
     Column({ space: 2 }) {
-      Text(item.name)
+      Text(item.id)
         .fontWeight(FontWeight.Medium)
         .fontSize(small ? 16 : 19)
-      Text(`${item.version_code} · ${VersionMap[item.mod]} ${item?.mod_version}`)
+      Text(`${version_code(item)} · ${VersionMap[mod_name(item)]} ${mod_version(item)}`)
         .fontSize(small ? 14 : 16)
     }
     .alignItems(HorizontalAlign.Start)

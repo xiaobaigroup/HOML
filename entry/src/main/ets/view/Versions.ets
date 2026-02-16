@@ -20,9 +20,11 @@ export struct Versions {
             Text('默认文件夹')
               .fontWeight(FontWeight.Bold)
               .fontSize(20)
-            Text('/User')
+            Text(this.viewmodel.homeDir)
               .fontSize(16)
-          }
+          }.onClick(()=>{
+              this.viewmodel.loadZip()
+          })
           .alignItems(HorizontalAlign.Start)
         }
         .width('100%')

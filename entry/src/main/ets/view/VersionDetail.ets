@@ -1,9 +1,10 @@
 import { Xb_ActionType, ThemeType, Xb_SettingsItem, Xb_SettingsItemData, Xb_CapsuleButton } from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
-import { VersionModel } from "../common/model/VersionModel"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../common/model/VersionFunctionModel"
 import { HOMLState } from "../entryability/AppState"
+import { MinecraftVersion } from "../model/MinecraftVersion"
+import { VersionSetting } from "../model/VersionSetting"
 
 
 @Builder
@@ -15,7 +16,8 @@ export function VersionDetailBuilder(name: string, param: Object) {
 struct VersionDetail {
 
   @Local options: GroupData[] = []
-  @Local currentVersion: VersionModel | null = null
+  @Local currentVersion: MinecraftVersion | null = null
+  @Local versionSetting: VersionSetting | null = null
 
   private pageStack: NavPathStack = new NavPathStack()
 
@@ -84,7 +86,7 @@ struct VersionDetail {
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
       this.pageStack = ctx.pathStack
-      const param = ctx.pathInfo.param as VersionModel
+      const param = ctx.pathInfo.param as MinecraftVersion
       this.currentVersion = param
       this.initOptions()
     })
@@ -107,20 +109,24 @@ struct VersionDetail {
         items: [
           {
             label: "使用全局设置",
-            value: this.currentVersion?.global,
+            value: this.versionSetting?.global,
             content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
             actionType: Xb_ActionType.TOGGLE,
             onChange: (v) => {
-
+              if(this.versionSetting){
+                this.versionSetting.global = v as boolean
+              }
             }
           },
           {
             label: "版本隔离",
-            value: this.currentVersion?.isolation,
+            value: this.versionSetting?.isolation,
             content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
             actionType: Xb_ActionType.TOGGLE,
             onChange: (v) => {
-
+              if(this.versionSetting){
+                this.versionSetting.isolation = v as boolean
+              }
             }
           }
         ]
@@ -141,25 +147,30 @@ struct VersionDetail {
         items: [
           {
             label: "忽略Java兼容性警告",
-            value: this.currentVersion?.ignore_java_comp,
+            value: this.versionSetting?.notCheckJVM,
             content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
             actionType: Xb_ActionType.TOGGLE,
             onChange: (v) => {
-
+              if(this.versionSetting){
+                this.versionSetting.notCheckJVM = v as boolean
+              }
             }
           },
           {
             label: "关闭文件校验",
-            value: this.currentVersion?.file_verification,
+            value: this.versionSetting?.file_verification,
             content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
             actionType: Xb_ActionType.TOGGLE,
             onChange: (v) => {
-
+              if(this.versionSetting){
+                this.versionSetting.file_verification = v as boolean
+              }
             }
           },
           {
             label: "附加参数",
-            value: '在启动游戏的命令行命令添加额外参数',
+            value: this.versionSetting?.javaArgs,
+            content: '在启动游戏的命令行命令添加额外参数',
             actionType: Xb_ActionType.JUMP,
             onChange: (v) => {
 

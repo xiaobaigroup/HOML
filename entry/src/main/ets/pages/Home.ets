@@ -66,7 +66,7 @@ export struct Home {
               .fontSize(18)
               .fontColor($r('sys.color.font_on_primary'))
             // 版本
-            Text(this.viewmodel.current?.name ?? '未选择')
+            Text(this.viewmodel.current?.id ?? '未选择')
               .fontSize(15)
               .fontColor($r('sys.color.font_on_primary'))
           }

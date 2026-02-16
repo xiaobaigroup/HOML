@@ -10,6 +10,9 @@ import { Settings } from './Settings';
 @ComponentV2
 struct Index {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel,()=> new HomlViewModel())!
+  aboutToAppear(): void {
+    this.viewmodel.initHome()
+  }
   build() {
     Stack() {
       if (HOMLState.mainCurrentTab == 0) {

@@ -1,7 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { SmartAvoidance, Xb_AvoidanceManager, Xb_ToastUtil } from 'xb_components';
+import { SmartAvoidance, Xb_AvoidanceManager, Xb_GlobalContext, Xb_ToastUtil } from 'xb_components';
 import { HOMLState, _HOMLState } from './AppState';
 
 
@@ -18,6 +18,7 @@ export default class EntryAbility extends UIAbility {
 
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     try {
+      Xb_GlobalContext.initContext(this.context)
       this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     } catch (err) {
       hilog.error(DOMAIN, 'testTag', 'Failed to set colorMode. Cause: %{public}s', JSON.stringify(err));
@@ -32,8 +33,9 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage): void {
     // Main window is created, set main page for this ability
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
-
+    Xb_GlobalContext.initWindow(windowStage.getMainWindowSync())
     windowStage.loadContent('pages/Index', async (err) => {
+      await Xb_GlobalContext.initDownloadDir()
       if (err.code) {
         hilog.error(DOMAIN, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err));
         return;

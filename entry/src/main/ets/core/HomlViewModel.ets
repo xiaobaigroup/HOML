@@ -12,6 +12,7 @@ export class HomlViewModel {
   @Trace zipLoading: boolean = false
   @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
   @Trace homeDir: string = ""
+  @Trace gameRootDir: string = ""
 
   async initHome(){
     const context = Xb_GlobalContext.getContext()
@@ -20,54 +21,20 @@ export class HomlViewModel {
       await fileIo.mkdir(sanbox)
     }
     this.homeDir  = sanbox;
+    this.gameRootDir = this.homeDir + ".minecraft/"
     this.loadVersions()
   }
 
   async loadVersions(){
-    // this.versions.push(
-    //   {
-    //     id: 0,
-    //     name: '1.21.11-Fabric 0.18.4',
-    //     version_code: '1.21.11',
-    //     mod: 'fabric',
-    //     mod_version: '0.18.4',
-    //     global: true,
-    //     isolation: false,
-    //     ignore_java_comp: false,
-    //     file_verification: true
-    //   },
-    //   {
-    //     id: 1,
-    //     name: 'Hy',
-    //     version_code: '1.21.11',
-    //     mod: 'normal',
-    //     mod_version: '',
-    //     global: true,
-    //     isolation: true,
-    //     ignore_java_comp: true,
-    //     file_verification: false
-    //   },
-    //   {
-    //     id: 2,
-    //     name: 'Hy',
-    //     version_code: '1.21.11',
-    //     mod: 'normal',
-    //     mod_version: '',
-    //     global: true,
-    //     isolation: true,
-    //     ignore_java_comp: true,
-    //     file_verification: false
-    //   }
-    // )
-    let versionsPath = this.homeDir + ".minecraft/versions"
+    let versionsPath =  this.gameRootDir + "versions/"
     let result: MinecraftVersion[] = []
     try {
       let files = await fileIo.listFile(versionsPath)
       for (let f of files.filter( v=> !v.endsWith("removed"))){
-        let dir  = await fileIo.stat(versionsPath + "/" + f);
+        let dir  = await fileIo.stat(versionsPath + f);
         if(dir.isDirectory()){
           try {
-            const json = await fileIo.readText(versionsPath + "/" + f + "/" + f + ".json")
+            const json = await fileIo.readText(versionsPath + f + "/" + f + ".json")
             result.push(JSON.parse(json) as MinecraftVersion)
           }catch (_) {
           }
@@ -101,4 +68,22 @@ export class HomlViewModel {
     }
   }
 
+  getRunDirectory(id:string): string {
+    const settings = getVersionSetting(id)
+    if(settings.isolation){
+      return this.gameRootDir + "/versions/" + id
+    }else{
+      return this.gameRootDir
+    }
+	}
 }
+
+// 获取当前版本对应的Settings
+function getVersionSetting(id:string): VersionSetting {
+  const versionSettings = Xb_getPersistenceByName(VersionSetting, id);
+  if (versionSettings && !versionSettings.global){
+    return versionSettings
+  }
+  return  Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
+}
+

@@ -6,6 +6,7 @@ export class _HOMLState {
 
   // -- 界面 --
   @Trace mainCurrentTab: number = 0
+  @Trace showUserInfo: boolean = false
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
   @Trace pageStack: NavPathStack = new NavPathStack()

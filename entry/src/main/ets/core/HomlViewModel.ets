@@ -5,10 +5,15 @@ import { fileIo } from "@kit.CoreFileKit";
 import { MinecraftVersion } from "../model/MinecraftVersion";
 
 @ObservedV2
-export class HomlViewModel{
+export class HomlViewModel {
+
   @Trace versions: MinecraftVersion[] = []
   @Trace current?: MinecraftVersion
   @Trace zipLoading: boolean = false
+  @Trace isolation: boolean = true
+  @Trace autoSetGameLang: boolean = true
+  @Trace ignore_java_comp: boolean = false
+  @Trace file_verification: boolean = true
   @Trace homeDir: string = ""
 
   async initHome(){
@@ -76,7 +81,6 @@ export class HomlViewModel{
 
     }
   }
-
 
   async loadZip(){
     const context = Xb_GlobalContext.getContext()

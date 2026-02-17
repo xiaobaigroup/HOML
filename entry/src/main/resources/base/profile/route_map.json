@@ -4,6 +4,11 @@
       "name": "version_detail",
       "pageSourceFile": "src/main/ets/view/VersionDetail.ets",
       "buildFunction": "VersionDetailBuilder"
+    },
+    {
+      "name": "global_game_options",
+      "pageSourceFile": "src/main/ets/view/GameOptions.ets",
+      "buildFunction": "GameOptionsBuilder"
     }
   ]
 }

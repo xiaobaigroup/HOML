@@ -31,7 +31,7 @@ export struct VersionListView {
           this.viewmodel.current = item
           this.onItemClick(item)
         })
-      })
+      }, (item: VersionModel) => `${item.id}_${item.name}`)
     }
     .width('100%')
     .contentEndOffset(this.contentEndOffset)

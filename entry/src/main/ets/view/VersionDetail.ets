@@ -5,6 +5,7 @@ import { VersionFunctionModel } from "../common/model/VersionFunctionModel"
 import { HOMLState } from "../entryability/AppState"
 import { MinecraftVersion } from "../model/MinecraftVersion"
 import { VersionSetting } from "../model/VersionSetting"
+import { GroupDataModel } from "../common/model/GroupDataModel"
 
 
 @Builder
@@ -15,7 +16,7 @@ export function VersionDetailBuilder(name: string, param: Object) {
 @ComponentV2
 struct VersionDetail {
 
-  @Local options: GroupData[] = []
+  @Local options: GroupDataModel[] = []
   @Local currentVersion: MinecraftVersion | null = null
   @Local versionSetting: VersionSetting | null = null
 
@@ -54,7 +55,7 @@ struct VersionDetail {
           .padding({ left: 13, right: 13 })
         }
         .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
-        ForEach(this.options, (group: GroupData) => {
+        ForEach(this.options, (group: GroupDataModel) => {
           ListItemGroup({ header: group.title ? this.title(group.title) : undefined, space: 2 }) {
             ForEach(group.items, (item: Xb_SettingsItemData, index: number) => {
               ListItem() {
@@ -78,7 +79,7 @@ struct VersionDetail {
           .borderRadius(24)
           .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
           .divider({ color: $r("app.color.divider_light"), strokeWidth: 1, startMargin: 3, endMargin: 3 })
-        }, (item: GroupData) => JSON.stringify(item))
+        }, (item: GroupDataModel) => JSON.stringify(item))
       }
       .contentEndOffset(HOMLState.bottomRectHeight)
     }
@@ -88,22 +89,20 @@ struct VersionDetail {
       this.pageStack = ctx.pathStack
       const param = ctx.pathInfo.param as MinecraftVersion
       this.currentVersion = param
-      this.initOptions()
     })
 
   }
 
   @LocalBuilder
-  title(title: ResourceStr) {
-    Text(title ?? "")
+  title(title?: ResourceStr) {
+    Text(title || "")
       .fontSize(16)
-      .padding({ top: 6, bottom: 0, left: 16 })
+      .padding({ top: 6, bottom: 12, left: 3 })
       .fontColor( $r("sys.color.font_secondary"))
   }
 
-  initOptions(): void {
-    this.options = []
-    this.options.push(
+  getOptions(): GroupDataModel[] {
+    return [
       {
         title: "游戏选项",
         items: [
@@ -178,7 +177,7 @@ struct VersionDetail {
           },
         ]
       }
-    )
+    ]
   }
 
   getVersionBarModel(): VersionFunctionModel[] {
@@ -226,9 +225,4 @@ struct VersionDetail {
 
 }
 
-
-interface GroupData {
-  title?: ResourceStr
-  items: Xb_SettingsItemData[]
-}
 

@@ -9,15 +9,14 @@ import { HomlViewModel } from "../core/HomlViewModel"
 
 @ComponentV2
 export struct Home {
-  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
-  @Local showUserInfo: boolean = false
 
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
 
   build() {
     RelativeContainer() {
       // 用户管理
       Column({ space: 10 }) {
-        if (this.showUserInfo) {
+        if (HOMLState.showUserInfo) {
           this.avatarAndName()
           this.UserInfoConfig()
         } else {
@@ -27,20 +26,23 @@ export struct Home {
           this.avatarAndName()
         }
       }
-      .padding(9)
       .borderRadius(16)
       .alignItems(HorizontalAlign.Start)
+      .padding(HOMLState.showUserInfo ? 9 : 0)
       .constraintSize({ maxWidth: 210, maxHeight: 112 })
-      .margin({ bottom: HOMLState.widthBp < 2 ? 76 : 0 })
-      .backgroundColor(this.showUserInfo ? $r('sys.color.background_primary') : undefined)
-      .shadow(this.showUserInfo ? { radius: 32, color: $r('sys.color.ohos_id_blur_style_background_thin_color') } : undefined)
+      .margin({ bottom: HOMLState.widthBp < 2 ? 76 : 10 })
+      .backgroundColor(HOMLState.showUserInfo ? $r('sys.color.background_primary') : undefined)
+      .shadow(HOMLState.showUserInfo ? { radius: 32, color: $r('sys.color.ohos_id_blur_style_background_thin_color') } : undefined)
       .id('user')
       .alignRules({
         left: { anchor: '__container__', align: HorizontalAlign.Start },
         bottom: { anchor: '__container__', align: VerticalAlign.Bottom }
       })
       .onClick(() => {
-        this.showUserInfo = !this.showUserInfo
+        HOMLState.showUserInfo = !HOMLState.showUserInfo
+      })
+      .onHover((isHover) => {
+        HOMLState.showUserInfo = isHover
       })
 
       // 版本管理区
@@ -54,7 +56,7 @@ export struct Home {
         .width(56)
         .height(56)
         .borderRadius(12)
-        .backgroundColor($r('sys.color.button_background_color_transparent'))
+        .backgroundColor($r("app.color.settings_switch_button_floor"))
         .onClick(() => {
           HOMLState.showVersions = true
           console.log(`showVersions：${HOMLState.showVersions}`)
@@ -70,8 +72,8 @@ export struct Home {
               .fontSize(15)
               .fontColor($r('sys.color.font_on_primary'))
           }
-        }.onClick(()=>{
-          if(!this.viewmodel.current){
+        }.onClick(() => {
+          if (!this.viewmodel.current) {
             HOMLState.showVersions = true
           }else{
 
@@ -86,7 +88,7 @@ export struct Home {
           placement: Placement.Top,
         })
       }
-      .height(69)
+      .height(72)
       .id('edit_start')
       .alignRules({
         right: { anchor: '__container__', align: HorizontalAlign.End },
@@ -128,7 +130,7 @@ export struct Home {
 
   @Builder
   avatarAndName() {
-    Flex({ direction: FlexDirection.Row, space: { main: LengthMetrics.vp(10) }, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center}) {
+    Flex({ direction: FlexDirection.Row, space: { main: LengthMetrics.vp(10) }, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center }) {
       Image($r('app.media.default_avatar'))
         .width(40)
         .height(40)

@@ -1,8 +1,9 @@
-import { Xb_FileUtils, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
+import { Xb_FileUtils, Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
 import { VersionModel } from "../common/model/VersionModel";
 import { zlib } from "@kit.BasicServicesKit";
 import { fileIo } from "@kit.CoreFileKit";
 import { MinecraftVersion } from "../model/MinecraftVersion";
+import { VersionSetting } from "../model/VersionSetting";
 
 @ObservedV2
 export class HomlViewModel {
@@ -10,10 +11,7 @@ export class HomlViewModel {
   @Trace versions: MinecraftVersion[] = []
   @Trace current?: MinecraftVersion
   @Trace zipLoading: boolean = false
-  @Trace isolation: boolean = true
-  @Trace autoSetGameLang: boolean = true
-  @Trace ignore_java_comp: boolean = false
-  @Trace file_verification: boolean = true
+  @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
   @Trace homeDir: string = ""
 
   async initHome(){

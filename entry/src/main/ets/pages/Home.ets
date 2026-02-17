@@ -2,10 +2,13 @@ import { StartButtonWidth } from "../common/constants/Constants"
 import { VersionListView } from "../components/VersionListView"
 import { HOMLState } from "../entryability/AppState"
 import { Versions } from "../view/Versions"
-import { LengthMetrics } from "@kit.ArkUI"
+import { LengthMetrics, PersistenceV2 } from "@kit.ArkUI"
 import { Xb_CapsuleButton, Xb_getAppStore } from "xb_components"
 import { HomlViewModel } from "../core/HomlViewModel"
 
+PersistenceV2.notifyOnError((key, reason, msg) => {
+  console.error(`Error key: ${key}, reason: ${reason}, message: ${msg}`);
+});
 
 @ComponentV2
 export struct Home {

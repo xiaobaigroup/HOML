@@ -5,6 +5,8 @@ import { GroupDataModel } from "../common/model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { HOMLState } from "../entryability/AppState"
+import { RENDERER_LIB } from "../model/VersionSetting"
+import { deviceInfo } from "@kit.BasicServicesKit"
 
 @Builder
 export function GameOptionsBuilder(name: string, param: Object) {
@@ -104,20 +106,41 @@ struct GameOptions {
     return [
       {
         label: '版本隔离',
-        value: state.isolation,
+        value: state.globalSetting.isolation,
         content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.isolation = v as boolean
+          state.globalSetting.isolation = v as boolean
         }
       },
       {
         label: '自动设置游戏语言',
-        value: state.autoSetGameLang,
+        value:  state.globalSetting.autoSetGameLang,
         content: `自动将游戏语言设置为${'系统语言(简体中文)'}`,
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.autoSetGameLang = v as boolean
+          state.globalSetting.autoSetGameLang = v as boolean
+        }
+      },
+      {
+        label: "渲染驱动",
+        value: state.globalSetting?.renderer,
+        content: '建议使用MOBILEGLUES',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: [
+          {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
+          {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
+          {label:"OPENGLV4(鸿蒙pc)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
+        ],
+        menuDisabled:(item, index: number)=>{
+          if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
+            return true
+          }else{
+            return false
+          }
+        },
+        onChange: (v) => {
+          state.globalSetting.renderer = v as RENDERER_LIB
         }
       }
     ]
@@ -127,21 +150,21 @@ struct GameOptions {
     return [
       {
         label: '忽略Java兼容性警告',
-        value: state.ignore_java_comp,
+        value: state.globalSetting.notCheckJVM,
         content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.ignore_java_comp = v as boolean
+          state.globalSetting.notCheckJVM = v as boolean
         }
       },
       {
         label: '关闭文件校验',
         // UI 语义是“关闭校验”，底层存的是 file_verification
-        value: !state.file_verification,
+        value: !state.globalSetting.fileVerification,
         content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.file_verification = !(v as boolean)
+          state.globalSetting.fileVerification = !(v as boolean)
         }
       }
     ]

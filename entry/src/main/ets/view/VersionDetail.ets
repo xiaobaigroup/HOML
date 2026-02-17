@@ -1,24 +1,26 @@
-import { Xb_ActionType, ThemeType, Xb_SettingsItem, Xb_SettingsItemData, Xb_CapsuleButton } from "xb_components"
+import { Xb_ActionType, ThemeType, Xb_SettingsItem, Xb_SettingsItemData, Xb_CapsuleButton,
+  Xb_getPersistenceByName,
+  Xb_getPersistence} from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../common/model/VersionFunctionModel"
 import { HOMLState } from "../entryability/AppState"
 import { MinecraftVersion } from "../model/MinecraftVersion"
-import { VersionSetting } from "../model/VersionSetting"
+import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { GroupDataModel } from "../common/model/GroupDataModel"
+import { deviceInfo } from "@kit.BasicServicesKit"
 
 
 @Builder
 export function VersionDetailBuilder(name: string, param: Object) {
-  VersionDetail()
+  VersionDetail({currentVersion: param as MinecraftVersion})
 }
 
 @ComponentV2
 struct VersionDetail {
-
+  @Require @Param currentVersion: MinecraftVersion
   @Local options: GroupDataModel[] = []
-  @Local currentVersion: MinecraftVersion | null = null
-  @Local versionSetting: VersionSetting | null = null
+  @Local versionSetting?: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())
 
   private pageStack: NavPathStack = new NavPathStack()
 
@@ -85,12 +87,6 @@ struct VersionDetail {
     }
     .title('版本选项')
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
-    .onReady((ctx) => {
-      this.pageStack = ctx.pathStack
-      const param = ctx.pathInfo.param as MinecraftVersion
-      this.currentVersion = param
-    })
-
   }
 
   @LocalBuilder
@@ -100,7 +96,9 @@ struct VersionDetail {
       .padding({ top: 6, bottom: 12, left: 3 })
       .fontColor( $r("sys.color.font_secondary"))
   }
-
+  aboutToAppear(): void {
+    this.options = this.getOptions()
+  }
   getOptions(): GroupDataModel[] {
     return [
       {
@@ -125,6 +123,29 @@ struct VersionDetail {
             onChange: (v) => {
               if(this.versionSetting){
                 this.versionSetting.isolation = v as boolean
+              }
+            }
+          },
+          {
+            label: "渲染驱动",
+            value: this.versionSetting?.renderer,
+            content: '建议使用MOBILEGLUES',
+            actionType: Xb_ActionType.MENU,
+            menuSelectList: [
+              {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
+              {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
+              {label:"OPENGLV4(鸿蒙pc)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
+            ],
+            menuDisabled:(item, index: number)=>{
+              if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
+                return true
+              }else{
+                return false
+              }
+            },
+            onChange: (v) => {
+              if(this.versionSetting){
+                this.versionSetting.renderer = v as RENDERER_LIB
               }
             }
           }
@@ -157,12 +178,12 @@ struct VersionDetail {
           },
           {
             label: "关闭文件校验",
-            value: this.versionSetting?.file_verification,
+            value: this.versionSetting?.fileVerification,
             content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
             actionType: Xb_ActionType.TOGGLE,
             onChange: (v) => {
               if(this.versionSetting){
-                this.versionSetting.file_verification = v as boolean
+                this.versionSetting.fileVerification = v as boolean
               }
             }
           },

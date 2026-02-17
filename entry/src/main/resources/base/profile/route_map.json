@@ -14,6 +14,11 @@
       "name": "launcher_appearance",
       "pageSourceFile": "src/main/ets/view/Appearance.ets",
       "buildFunction": "AppearanceBuilder"
+    },
+    {
+      "name": "virtual_control_button",
+      "pageSourceFile": "src/main/ets/view/ControllerLayout.ets",
+      "buildFunction": "ControllerLayoutBuilder"
     }
   ]
 }

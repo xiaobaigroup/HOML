@@ -19,7 +19,7 @@ export function VersionDetailBuilder(name: string, param: Object) {
 struct VersionDetail {
 
   @Require @Param currentVersion: MinecraftVersion
-  @Local versionSetting?: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())
+  @Local versionSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())!
 
   build() {
     NavDestination() {
@@ -168,9 +168,9 @@ struct VersionDetail {
             label: "附加参数",
             value: this.versionSetting?.javaArgs,
             content: '在启动游戏的命令行命令添加额外参数',
-            actionType: Xb_ActionType.JUMP,
+            actionType: Xb_ActionType.Input,
             onChange: (v) => {
-
+              this.versionSetting.javaArgs = v as string
             }
           },
         ]

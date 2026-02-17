@@ -114,7 +114,7 @@ struct GameOptions {
           {
             label: '附加参数',
             value: '在启动游戏的命令行命令添加额外参数',
-            actionType: Xb_ActionType.JUMP,
+            actionType: Xb_ActionType.Input,
             onChange: (v) => {
               // TODO: 打开附加参数编辑页
             }

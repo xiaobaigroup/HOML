@@ -1,5 +1,4 @@
 import { Xb_getAppStore } from "xb_components";
-import { VersionModel } from "../model/VersionModel";
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
 import { HomlViewModel } from "../core/HomlViewModel";
 import { HOMLState } from "../entryability/AppState";
@@ -31,7 +30,7 @@ export struct VersionListView {
           this.viewmodel.current = item
           this.onItemClick(item)
         })
-      }, (item: VersionModel) => `${item.id}_${item.name}`)
+      }, (item: MinecraftVersion) => `${item.id}`)
     }
     .width('100%')
     .contentEndOffset(this.contentEndOffset)

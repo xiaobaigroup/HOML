@@ -9,6 +9,11 @@
       "name": "global_game_options",
       "pageSourceFile": "src/main/ets/view/GameOptions.ets",
       "buildFunction": "GameOptionsBuilder"
+    },
+    {
+      "name": "launcher_appearance",
+      "pageSourceFile": "src/main/ets/view/Appearance.ets",
+      "buildFunction": "AppearanceBuilder"
     }
   ]
 }

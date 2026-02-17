@@ -1,5 +1,4 @@
 import { Xb_FileUtils, Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
-import { VersionModel } from "../common/model/VersionModel";
 import { zlib } from "@kit.BasicServicesKit";
 import { fileIo } from "@kit.CoreFileKit";
 import { MinecraftVersion } from "../model/MinecraftVersion";

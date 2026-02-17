@@ -1,41 +1,38 @@
-import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType,
-  Xb_makePersistenceSettings } from "xb_components"
-import { GroupDataModel } from "../model/GroupDataModel"
+import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType, EventHub,
+  Xb_getPersistence,
+  Xb_getPersistenceByName} from "xb_components"
 import { SettingsListView } from "../components/SettingsListView"
-import { HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
-import { RENDERER_LIB } from "../model/VersionSetting"
-import { deviceInfo } from "@kit.BasicServicesKit"
-import { HomlViewModel } from "../core/HomlViewModel"
+import { HOMLState, UISettings } from "../entryability/AppState"
+import { EventKey } from "../common/EventKey"
 
 @Builder
-export function GameOptionsBuilder(name: string, param: Object) {
-  GameOptions()
+export function AppearanceBuilder(name: string, param: Object) {
+  Appearance()
 }
 
 @ComponentV2
-struct GameOptions {
+struct Appearance {
 
-  @Local offlineSkins: SegmentButtonV2Items = new SegmentButtonV2Items([
-    { text: 'Stave 史蒂夫', icon: getIconResource('stave') },
-    { text: 'Alex 艾利克斯', icon: getIconResource('alex') },
-    { text: '正版玩家皮肤', icon: getIconResource('default') },
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
+  @Local darkModeItems: SegmentButtonV2Items = new SegmentButtonV2Items([
+    { text: '跟随系统', icon: getIconResource('system') },
+    { text: '始终浅色', icon: getIconResource('light') },
+    { text: '始终深色', icon: getIconResource('dark') },
   ]);
-  @Local viewModel: HomlViewModel = new HomlViewModel()
-  @Local offlineSkinIndex: number = 0 // 临时
 
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
     NavDestination() {
       SettingsListView({
-        groups: this.optionsSettingsGroups,
+        groups: /*this.optionsSettingsGroups*/[],
         endBuilder: () => {
-          this.skins()
+          this.darkMode()
         }
       })
     }
-    .title('全局游戏选项')
+    .title('启动器外观')
     .padding({ top: HOMLState.topRectHeight })
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
@@ -45,39 +42,26 @@ struct GameOptions {
   }
 
   @Builder
-  skins() {
+  darkMode() {
     ListItem() {
       TabSegmentButtonV2({
-        items: this.offlineSkins,
-        selectedIndex: this.offlineSkinIndex!!,
+        items: this.darkModeItems,
+        selectedIndex: this.UIstate.DarkMode!!,
         onItemClicked: (tab) => {
+          EventHub.sendEvent(EventKey.SwitchDarkMode, tab)
         }
       })
     }
     .margin({ left: 12, right: 12})
-    if (this.offlineSkinIndex == 2) {
-      ListItem() {
-        Xb_SettingsItem({
-          item: {
-            label: '选择皮肤',
-            actionType: Xb_ActionType.JUMP,
-            onChange: () => {
-              // TODO 选择皮肤
-            }
-          },
-          themeType: ThemeType.Auto,
-        })
-      }
-      .borderRadius(16)
-      .margin({ left: 12, right: 12})
-      .padding({ top: 12, bottom: 12, left: 6, right: 6 })
-      .backgroundColor($r('sys.color.background_primary'))
-    }
   }
 
-  get optionsSettingsGroups(): GroupDataModel[] {
+/*  get optionsSettingsGroups(): GroupDataModel[] {
     // makePersistenceSettings 返回 state 后生成各 item
-    const gameItems = this.buildGameItems(this.viewModel)
+    const gameItems = Xb_makePersistenceSettings<UISettings>(
+      UISettings,
+      () => new UISettings(),
+      (state) => this.buildGameItems(state)
+    )
     // 高级选项（固定项）
     const advancedItems: Xb_SettingsItemData[] = [
       {
@@ -88,7 +72,11 @@ struct GameOptions {
       },
     ]
     // 高级选项动态项
-    const advancedStateItems = this.buildAdvancedItems(this.viewModel)
+    const advancedStateItems = Xb_makePersistenceSettings<UISettings>(
+      UISettings,
+      () => new UISettings(),
+      (state) => this.buildAdvancedItems(state)
+    )
     // 离线皮肤分组（固定项）
     const offlineSkinItems: Xb_SettingsItemData[] = [
       {
@@ -126,75 +114,54 @@ struct GameOptions {
         items: offlineSkinItems
       }
     ]
-  }
+  }*/
 
-  buildGameItems(state: HomlViewModel): Xb_SettingsItemData[] {
+/*  buildGameItems(state: UISettings): Xb_SettingsItemData[] {
     return [
       {
         label: '版本隔离',
-        value: state.globalSetting.isolation,
+        value: state.isolation,
         content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.globalSetting.isolation = v as boolean
+          state.isolation = v as boolean
         }
       },
       {
         label: '自动设置游戏语言',
-        value:  state.globalSetting.autoSetGameLang,
+        value: state.autoSetGameLang,
         content: `自动将游戏语言设置为${'系统语言(简体中文)'}`,
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.globalSetting.autoSetGameLang = v as boolean
-        }
-      },
-      {
-        label: "渲染驱动",
-        value: state.globalSetting?.renderer,
-        content: '建议使用MOBILEGLUES',
-        actionType: Xb_ActionType.MENU,
-        menuSelectList: [
-          {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
-          {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
-          {label:"OPENGLV4(鸿蒙PC)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
-        ],
-        menuDisabled:(item, index: number)=>{
-          if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
-            return true
-          }else{
-            return false
-          }
-        },
-        onChange: (v) => {
-          state.globalSetting.renderer = v as RENDERER_LIB
+          state.autoSetGameLang = v as boolean
         }
       }
     ]
   }
 
-  buildAdvancedItems(state: HomlViewModel): Xb_SettingsItemData[] {
+  buildAdvancedItems(state: UISettings): Xb_SettingsItemData[] {
     return [
       {
         label: '忽略Java兼容性警告',
-        value: state.globalSetting.notCheckJVM,
+        value: state.ignore_java_comp,
         content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.globalSetting.notCheckJVM = v as boolean
+          state.ignore_java_comp = v as boolean
         }
       },
       {
         label: '关闭文件校验',
         // UI 语义是“关闭校验”，底层存的是 file_verification
-        value: !state.globalSetting.fileVerification,
+        value: !state.file_verification,
         content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
-          state.globalSetting.fileVerification = !(v as boolean)
+          state.file_verification = !(v as boolean)
         }
       }
     ]
-  }
+  }*/
 
 }
 
@@ -204,5 +171,5 @@ struct GameOptions {
  * @returns Resource
  */
 function getIconResource(icon: string): Resource {
-  return $r(`app.media.minecraft_skin_${icon}`)
+  return $r(`app.media.color_mode_${icon}`)
 }

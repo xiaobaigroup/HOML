@@ -1,5 +1,5 @@
 import { window } from "@kit.ArkUI";
-import { VersionModel } from "../common/model/VersionModel";
+import { common } from "@kit.AbilityKit";
 
 @ObservedV2
 export class _HOMLState {
@@ -14,6 +14,7 @@ export class _HOMLState {
   // -- 窗口相关 --
   public static UIContext: UIContext
   public static window: window.Window;
+  public static context: common.UIAbilityContext
   /** @description 窗口高度 -vp */
   @Trace windowHeight: number = 0
   /** @description 窗口宽度 -vp */
@@ -42,5 +43,11 @@ export class _HOMLState {
   @Trace windowMode: boolean = false
 
 }
+
+@ObservedV2
+export class UISettings {
+  @Trace DarkMode: ThemeColorMode = ThemeColorMode.SYSTEM
+}
+
 
 export const HOMLState = new _HOMLState()

@@ -1,5 +1,5 @@
 import { Xb_getAppStore } from "xb_components";
-import { VersionModel } from "../common/model/VersionModel";
+import { VersionModel } from "../model/VersionModel";
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
 import { HomlViewModel } from "../core/HomlViewModel";
 import { HOMLState } from "../entryability/AppState";

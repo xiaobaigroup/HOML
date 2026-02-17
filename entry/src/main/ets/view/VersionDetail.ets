@@ -1,14 +1,13 @@
-import { Xb_ActionType, ThemeType, Xb_SettingsItem, Xb_SettingsItemData, Xb_CapsuleButton,
-  Xb_getPersistenceByName,
-  Xb_getPersistence} from "xb_components"
+import { Xb_ActionType, Xb_CapsuleButton,
+  Xb_getPersistenceByName } from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionItemView } from "../components/VersionListView"
-import { VersionFunctionModel } from "../common/model/VersionFunctionModel"
-import { HOMLState } from "../entryability/AppState"
+import { VersionFunctionModel } from "../model/VersionFunctionModel"
 import { MinecraftVersion } from "../model/MinecraftVersion"
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
-import { GroupDataModel } from "../common/model/GroupDataModel"
 import { deviceInfo } from "@kit.BasicServicesKit"
+import { SettingsListView } from "../components/SettingsListView"
+import { GroupDataModel } from "../model/GroupDataModel"
 
 
 @Builder
@@ -18,75 +17,55 @@ export function VersionDetailBuilder(name: string, param: Object) {
 
 @ComponentV2
 struct VersionDetail {
-  @Require @Param currentVersion: MinecraftVersion
-  @Local options: GroupDataModel[] = []
-  @Local versionSetting?: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())
 
-  private pageStack: NavPathStack = new NavPathStack()
+  @Require @Param currentVersion: MinecraftVersion
+  @Local versionSetting?: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())
 
   build() {
     NavDestination() {
-      List({ space: 10 }) {
-        ListItemGroup({ header: this.title('基本信息'), space: 2 }) {
-          ListItem() {
-            Column() {
-              VersionItemView(this.currentVersion!)
-              List({space: 3}) {
-                ForEach(this.getVersionBarModel(), (item: VersionFunctionModel, index) => {
-                  ListItem() {
-                    Xb_CapsuleButton({
-                      icon: item.icon,
-                      text: item.title,
-                      iconColor: item?.iconColor || $r('app.color.blue'),
-                      theBackgroundColor: item?.backgroundColor || $r('sys.color.button_background_color_transparent'),
-                      onCheck: () => {
-                      },
-                    })
-                  }
-                })
-              }
-              .scrollBar(BarState.Off)
-              .listDirection(Axis.Horizontal)
-              .alignListItem(ListItemAlign.Center)
-              .padding({ left: 3, right: 8, bottom: 12 })
-            }
-            .alignItems(HorizontalAlign.Start)
-          }
-          .borderRadius(16)
-          .backgroundColor($r('sys.color.background_primary'))
-          .padding({ left: 13, right: 13 })
+      SettingsListView({
+        groups: this.getOptions(),
+        headerBuilder: () => {
+          this.buildVersionHeader()
         }
-        .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
-        ForEach(this.options, (group: GroupDataModel) => {
-          ListItemGroup({ header: group.title ? this.title(group.title) : undefined, space: 2 }) {
-            ForEach(group.items, (item: Xb_SettingsItemData, index: number) => {
-              ListItem() {
-                Xb_SettingsItem({
-                  item: item,
-                  themeType: ThemeType.Auto,
-                  dialogContent: (d) => {
-                  }
-                })
-              }
-              .padding({ top: 12, bottom: 12, left: 6, right: 6 })
-              .backgroundColor($r('sys.color.background_primary'))
-              .borderRadius({
-                topLeft: index == 0 ? 16 : undefined,
-                topRight: index == 0 ? 16 : undefined,
-                bottomLeft: index == group.items.length - 1 ? 16 : undefined,
-                bottomRight: index == group.items.length - 1 ? 16 : undefined
-              })
-            }, (item: Xb_SettingsItemData) => JSON.stringify(item))
-          }
-          .borderRadius(24)
-          .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
-          .divider({ color: $r("app.color.divider_light"), strokeWidth: 1, startMargin: 3, endMargin: 3 })
-        }, (item: GroupDataModel) => JSON.stringify(item))
-      }
-      .contentEndOffset(HOMLState.bottomRectHeight)
+      })
     }
     .title('版本选项')
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+  }
+
+  @Builder
+  buildVersionHeader() {
+    ListItemGroup({ header: this.title('基本信息'), space: 2 }) {
+      ListItem() {
+        Column() {
+          VersionItemView(this.currentVersion!)
+          List({space: 3}) {
+            ForEach(this.getVersionBarModel(), (item: VersionFunctionModel, index) => {
+              ListItem() {
+                Xb_CapsuleButton({
+                  icon: item.icon,
+                  text: item.title,
+                  iconColor: item?.iconColor || $r('app.color.blue'),
+                  theBackgroundColor: item?.backgroundColor || $r('sys.color.button_background_color_transparent'),
+                  onCheck: () => {
+                  },
+                })
+              }
+            })
+          }
+          .scrollBar(BarState.Off)
+          .listDirection(Axis.Horizontal)
+          .alignListItem(ListItemAlign.Center)
+          .padding({ left: 3, right: 8, bottom: 12 })
+        }
+        .alignItems(HorizontalAlign.Start)
+      }
+      .borderRadius(16)
+      .backgroundColor($r('sys.color.background_primary'))
+      .padding({ left: 13, right: 13 })
+    }
+    .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
   }
 
   @LocalBuilder
@@ -96,9 +75,7 @@ struct VersionDetail {
       .padding({ top: 6, bottom: 12, left: 3 })
       .fontColor( $r("sys.color.font_secondary"))
   }
-  aboutToAppear(): void {
-    this.options = this.getOptions()
-  }
+
   getOptions(): GroupDataModel[] {
     return [
       {

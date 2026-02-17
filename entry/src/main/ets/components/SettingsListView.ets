@@ -1,7 +1,7 @@
 
 import { Xb_SettingsItem, Xb_SettingsItemData, ThemeType } from 'xb_components'
 import { PADDING_VALUE_12 } from 'xb_components/src/main/ets/components/Constants'
-import { GroupDataModel } from '../common/model/GroupDataModel'
+import { GroupDataModel } from '../model/GroupDataModel'
 import { HOMLState } from '../entryability/AppState'
 
 @ComponentV2
@@ -10,6 +10,8 @@ export struct SettingsListView {
   @Param groups: GroupDataModel[] = []
   // 接收可能的自定义头部
   @BuilderParam headerBuilder?: () => void
+  // 接收可能的自定义尾部
+  @BuilderParam endBuilder?: () => void
   // 标题构建器
   @Builder
   title(title?: ResourceStr) {
@@ -56,6 +58,10 @@ export struct SettingsListView {
         .padding({ left: PADDING_VALUE_12, right: PADDING_VALUE_12, bottom: 3 })
         .divider({ color: $r("app.color.divider_light"), strokeWidth: 1, startMargin: 3, endMargin: 3 })
       }, (item: GroupDataModel) => JSON.stringify(item))
+      // 自定义尾部
+      if (this.endBuilder) {
+        this.endBuilder()
+      }
     }
     .contentEndOffset(HOMLState.bottomRectHeight) // 通用底部避让
   }

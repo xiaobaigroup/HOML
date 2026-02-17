@@ -1,9 +1,12 @@
-import { Xb_getAppStore, Xb_SwitchButton } from 'xb_components';
+import { EventHub, Xb_ColorModeManager, Xb_getAppStore, Xb_getPersistence,
+  Xb_getPersistenceByName,
+  Xb_SwitchButton } from 'xb_components';
 import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth, WindowLogoTextMargin,
   WindowMainTabButtonMargin } from '../common/BreakPoint';
+import { EventKey } from '../common/EventKey';
 import { getColorWithTransparency } from '../common/util/ColorWithTransparency';
 import { HomlViewModel } from '../core/HomlViewModel';
-import { HOMLState, _HOMLState } from '../entryability/AppState';
+import { HOMLState, UISettings, _HOMLState } from '../entryability/AppState';
 import { Home } from './Home';
 import { Settings } from './Settings';
 
@@ -12,12 +15,18 @@ import { Settings } from './Settings';
 @ComponentV2
 struct Index {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel,()=> new HomlViewModel())!
-  aboutToAppear(): void {
-    this.viewmodel.initHome()
-  }
 
+  private UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
   private panOptionL: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Left })
   private panOptionR: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Right })
+
+  aboutToAppear(): void {
+    this.viewmodel.initHome()
+    // 注册所有事件
+    this.registerEvent()
+    // 发送初始化事件
+    this.sendEvent()
+  }
 
   build() {
     if (HOMLState.widthBp < 2) {
@@ -128,6 +137,27 @@ struct Index {
           }
         }),
     )
+  }
+
+  // 注册事件
+  registerEvent() {
+    EventHub.on(EventKey.SwitchDarkMode, (color_mode?: ThemeColorMode) => {
+      let darkMode = color_mode
+      if (!darkMode) {
+        darkMode = this.UIstate.DarkMode
+      }
+      Xb_ColorModeManager.setThemeColorMode(_HOMLState.context, darkMode)
+    })
+  }
+
+  // 发送事件
+  sendEvent() {
+    EventHub.sendEvent(EventKey.SwitchDarkMode)
+  }
+
+  // 注销事件
+  unregister() {
+    EventHub.off(EventKey.SwitchDarkMode)
   }
 
 }

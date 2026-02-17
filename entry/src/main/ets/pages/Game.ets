@@ -4,6 +4,7 @@ import { KeyCode } from "@kit.InputKit";
 import { JVMLauncher } from "../core/JVMLauncher";
 import { FCLKeycodes } from "../core/FCLKeycode";
 import { GameViewModel } from "../core/GameViewModel";
+import { HomlViewModel } from "../core/HomlViewModel";
 
 class GameXComponentController extends XComponentController{
   onSurfaceCreated(surfaceId: string): void {
@@ -27,14 +28,14 @@ struct Game {
   @Local widthPx: number = 900;
   @Local heightPx: number = 900;
   @Param @Require version: string
-  @Local viewModel?: GameViewModel = Xb_getAppStore(GameViewModel)
+  @Local viewModel: HomlViewModel = Xb_getAppStore(HomlViewModel, ()=> new HomlViewModel())!
   @Local menuState?: Xb_GameMenuState = Xb_getPersistence(Xb_GameMenuState)
   async aboutToAppear(): Promise<void> {
-    JVMLauncher.currentVersion = this.version
+
   }
   @LocalBuilder
   gameView(){
-    XComponent({id:"java-game",type: XComponentType.TEXTURE, controller: this.xController})
+    XComponent({id:"java-game", type: XComponentType.TEXTURE, controller: this.xController})
       .backgroundColor(Color.Black)
       .width('100%')
       .height('100%')
@@ -42,14 +43,14 @@ struct Game {
       .onLoad(()=>{
         const context = this.getUIContext().getHostContext()
         setTimeout(()=> {
-          JVMLauncher.launch(context!, "xiaobai", {id: JVMLauncher.currentVersion, arguments:[]}, this.menuState?.screenWidth, this.menuState?.screenHeight)
+          JVMLauncher.launch(context!, "xiaobai", {id: "11", arguments:[]}, this.menuState?.screenWidth, this.menuState?.screenHeight)
         }, 1000)
       })
     //LogsView()
   }
   build() {
     NavDestination(){
-      Xb_GameLayout({gameView: this.gameView, eventHandler: this.viewModel, inGame: true, onNormKeyCode: FCLKeycodes.onNormKeyCode})
+      Xb_GameLayout({gameView: this.gameView, eventHandler: new GameViewModel(), inGame: true, onNormKeyCode: FCLKeycodes.onNormKeyCode})
     }.hideTitleBar(true)
   }
   onBackPress(): boolean | void {

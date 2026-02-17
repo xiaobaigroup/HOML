@@ -6,6 +6,7 @@ import { SettingsListView } from "../components/SettingsListView"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { HOMLState, UISettings } from "../entryability/AppState"
 import { EventKey } from "../common/EventKey"
+import { FCLKeycodes } from "../core/FCLKeycode"
 
 @Builder
 export function ControllerLayoutBuilder(name: string, param: Object) {
@@ -20,7 +21,7 @@ struct ControllerLayout {
 
   build() {
     NavDestination() {
-      Xb_GameLayout({inGame: false, onNormKeyCode:(key) => key})
+      Xb_GameLayout({inGame: false, onNormKeyCode: FCLKeycodes.onNormKeyCode})
     }
     .title('控制器布局')
     .padding({ top: HOMLState.topRectHeight })

@@ -1,5 +1,7 @@
 import { Context } from "@kit.AbilityKit";
 import { fileIo } from "@kit.CoreFileKit";
+import { Xb_getAppStore } from "xb_components";
+import { HomlViewModel } from "./HomlViewModel";
 
 export enum RENDERER_LIB{
   RENDERER_NAME_NG_GL4ES = "libng_gl4es.so",
@@ -24,27 +26,13 @@ class LaunchTarget {
     arguments:string[] = []
 }
 export class JVMLauncher {
-  static currentVersion: string = ""
   static glLibName: string = RENDERER_LIB.RENDERER_NAME_MOBILEGLUES
   static jreVersion: string = JAVA_VERSION.JAVA25
   static serverIp: string = ""
-  static homeDir: string = "/HML/"
-  static initHomeDir(dir: string){
-    const dirHome = dir + "/HML/";
-    JVMLauncher.homeDir = dirHome;
-    try {
-      if (!fileIo.accessSync(dirHome)){
-        fileIo.mkdirSync(dirHome, true)
-      }
-    }catch (e) {
-      console.error("initHomeDir ", dirHome,e.message, e.stack)
-    }
-
-  }
   static launch(context: Context, username: string, launchTarget: string | LaunchTarget = "test_lwjgl-1.0.jar",
     width = 900, height = 900) {
-    const dirHome = JVMLauncher.homeDir;
-
+    const viewModel = Xb_getAppStore(HomlViewModel)!;
+    const dirHome = viewModel.homeDir;
     const dirGameNew = dirHome + ".minecraft";
     if (!fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2")) {
       try {
@@ -77,7 +65,8 @@ export class JVMLauncher {
     let resolvFile = "";
     let version = ""
     if (typeof launchTarget != "string") {
-      version = (launchTarget as LaunchTarget).id
+     // version = (launchTarget as LaunchTarget).id
+      version = viewModel.current!.id
     }
     const glLibName = JVMLauncher.glLibName
     const overridableArguments = [

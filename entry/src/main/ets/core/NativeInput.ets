@@ -1,5 +1,4 @@
-import { send_key, send_cursor_pos, send_mouse_button, on_cursor_enabled, send_char_mods,
-  send_char } from "libhoml_bridge.so";
+import { send_key, send_cursor_pos, send_mouse_button, on_cursor_enabled, send_char_mods, send_char } from "libhoml_bridge.so";
 import { KeyCode, } from "@kit.InputKit";
 import LWJGLGLFWKeycode, { toGLFW } from "./LWJGLKeycode";
 import { FCLKeycodes } from "./FCLKeycode";
@@ -22,7 +21,7 @@ export class NativeInput {
     [Xb_MouseButtonCode.Back, LWJGLGLFWKeycode.MOUSE_BUTTON_5],
   ])
   constructor() {
-    on_cursor_enabled((result)=>{
+    on_cursor_enabled((result: boolean)=>{
       console.debug("NativeInput on_cursor_enabled: " + result)
       const menu = Xb_getPersistence(Xb_GameMenuState)!
       menu.cursorEnabled = !result;

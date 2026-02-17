@@ -79,7 +79,7 @@ export struct Home {
           if (!this.viewmodel.current) {
             HOMLState.showVersions = true
           }else{
-
+            this.getUIContext().getRouter().pushUrl({url:"pages/Game"})
           }
         })
         .width(StartButtonWidth)

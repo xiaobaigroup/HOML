@@ -1,16 +1,21 @@
-import { Xb_FileUtils, Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
+import { Xb_FileUtils,
+  Xb_GameMenuState,
+  Xb_getPersistence,
+  Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
 import { zlib } from "@kit.BasicServicesKit";
 import { fileIo } from "@kit.CoreFileKit";
 import { MinecraftVersion } from "../model/MinecraftVersion";
 import { VersionSetting } from "../model/VersionSetting";
+import { jvmLauncher } from "./JVMLauncher";
 
 @ObservedV2
 export class HomlViewModel {
 
   @Trace versions: MinecraftVersion[] = []
   @Trace current?: MinecraftVersion
-  @Trace zipLoading: boolean = false
   @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
+
+  @Trace zipLoading: boolean = false
   @Trace homeDir: string = ""
   @Trace gameRootDir: string = ""
 
@@ -70,16 +75,28 @@ export class HomlViewModel {
 
   getRunDirectory(id:string): string {
     const settings = getVersionSetting(id)
-    if(settings.isolation){
-      return this.gameRootDir + "/versions/" + id
-    }else{
-      return this.gameRootDir
-    }
+    return getRunDirectory(id,this.gameRootDir, settings)
 	}
+  launch(){
+    const id = this.current!.id
+    const gameMenuState =  Xb_getPersistence(Xb_GameMenuState)
+    jvmLauncher.launch(Xb_GlobalContext.getContext(),
+      "xiaobai",
+      {id: this.current!.id, homeDir: this.homeDir, gameRootDir: this.gameRootDir, settings: getVersionSetting(id),arguments:[]},
+      gameMenuState?.screenWidth, gameMenuState?.screenHeight)
+  }
 }
-
+export function getRunDirectory(id:string, gameDir: string, settings: VersionSetting | undefined): string {
+  if(!settings)
+    return gameDir;
+  if(settings.isolation){
+    return gameDir + "/versions/" + id
+  }else{
+    return gameDir
+  }
+}
 // 获取当前版本对应的Settings
-function getVersionSetting(id:string): VersionSetting {
+export function getVersionSetting(id:string): VersionSetting {
   const versionSettings = Xb_getPersistenceByName(VersionSetting, id);
   if (versionSettings && !versionSettings.global){
     return versionSettings

@@ -2,7 +2,7 @@ import { jvm_Launcher, set_env as setenv, dl_open} from "libhoml_bridge.so";
 import { Context } from "@kit.AbilityKit";
 import { fileIo } from "@kit.CoreFileKit";
 import { Xb_getAppStore, Xb_ToastUtil } from "xb_components";
-import { getRunDirectory, HomlViewModel } from "./HomlViewModel";
+import { getRunDirectory } from "./HomlViewModel";
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting";
 
 
@@ -12,13 +12,7 @@ export enum JAVA_VERSION{
   JAVA25 = "jre25",
 }
 
-class MinecraftAccount {
-  accessToken:string = "0"  // access token
-  clientToken:string = "${clientId}" // clientID: refresh and invalidate
-  profileId: string= "00000000-0000-0000-0000-000000000000"; // authenticate UUID
-  username:string = "xiaobai";
-  xuid: string = "${auth_xuid}"
-}
+
 interface  LaunchTarget {
     id: string
     homeDir: string
@@ -34,23 +28,7 @@ export class JVMLauncher {
     launchTarget: string | LaunchTarget = "test_lwjgl-1.0.jar",
     width = 900, height = 900
   ) {
-    // if (!fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2")) {
-    //   try {
-    //     fileIo.mkdirSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2", true)
-    //     fileIo.copyFileSync(
-    //       dirGameNew + "/libraries/com/github/oshi/oshi-core/6.3.0/oshi-core-6.3.0.jar",
-    //       dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2/oshi-core-6.2.2.jar")
-    //   }catch (e) {
-    //   }
-    // }
-    // if (!fileIo.accessSync(dirHome + "accounts/")) {
-    //   fileIo.mkdirSync(dirHome + "accounts/", true)
-    //   if (!fileIo.accessSync(`${dirHome}/accounts/${username}.json`)){
-    //     let file = fileIo.openSync(dirHome + `/accounts/${username}.json`, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE);
-    //     fileIo.writeSync(file.fd, JSON.stringify(new MinecraftAccount()))
-    //     fileIo.close(file.fd)
-    //   }
-    // }
+
     const jreVersion = JVMLauncher.jreVersion
 
     let appName = "鸿蒙版";
@@ -60,15 +38,27 @@ export class JVMLauncher {
     let dirAccountNew = username
     let displayWidth = width.toFixed(0);
     let displayHeight = height.toFixed(0);
-    let resolvFile = "";
+    let resolvFile =  javaHome + "/resolv.conf";
     let settings = (launchTarget as LaunchTarget)?.settings
     let dirGameNew = (launchTarget as LaunchTarget)?.gameRootDir
     let dirHome = (launchTarget as LaunchTarget)?.homeDir
     let version = (launchTarget as LaunchTarget)?.id
+    let maxMemory = settings?.maxMemory
+    let minMemory = settings?.minMemory
+    let jvmMemory: string[] = []
+    let javaArgs = settings?.javaArgs.split(" ") ?? [];
+
+    if(maxMemory && maxMemory > 0 && (javaArgs.indexOf("noXmx") == -1)){
+      jvmMemory.push("-Xmx" + maxMemory + "m")
+    }
+    if(minMemory && minMemory > 0 && (!maxMemory || maxMemory >= minMemory)){
+      jvmMemory.push("-Xms" + minMemory + "m")
+    }
     let serverIp = settings?.serverIp
     let renderer = settings?.renderer ?? RENDERER_LIB.RENDERER_NAME_MOBILEGLUES
     const overridableArguments = [
       nativeLibDir + "/bin/java",
+      ...javaArgs.filter(d => d != "noXmx"),
       `-Djava.home=${javaHome}`,
       `-DServer_Ip=${serverIp}`,
       `-Djava.io.tmpdir=${dirCache}`,
@@ -87,12 +77,12 @@ export class JVMLauncher {
       "-XX:+UnlockExperimentalVMOptions",
       `-DDEBUG=true`,
       `-Duser.language=zh`,
+      `-Duser.country=CN`,
       `-Dos.name=Linux`,
       `-Dos.version=harmonyos`,
       `-Dpojav.path.minecraft=${dirGameNew}`,
       `-Dpojav.path.private.account=${dirAccountNew}`,
-      `-Xms1G`,
-      `-Xmx4G`,
+      ...jvmMemory,
       `-XX:ActiveProcessorCount=8`,
       `-Dsun.rmi.transport.logLevel=verbose`,
       `-Dsun.rmi.transport.tcp.logLevel=verbose`,
@@ -117,7 +107,7 @@ export class JVMLauncher {
       `-Dfml.earlyprogresswindow=false`, // Forge 1.14+ workaround
       `-Dloader.disable_forked_guis=true`,
       `-Dsodium.checks.issue2561=false`,
-      `-Dcpu.name=12412`,
+      `-Dcpu.name=harmonyos`,
       `-Djdk.lang.Process.launchMechanism=FORK`
     ];
 

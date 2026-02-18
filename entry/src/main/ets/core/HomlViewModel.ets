@@ -7,17 +7,21 @@ import { fileIo } from "@kit.CoreFileKit";
 import { MinecraftVersion } from "../model/MinecraftVersion";
 import { VersionSetting } from "../model/VersionSetting";
 import { jvmLauncher } from "./JVMLauncher";
+import { MinecraftAccount } from "../model/MinecraftAccount";
+import { GameProfile } from "../model/GameProfile";
 
 @ObservedV2
 export class HomlViewModel {
 
   @Trace versions: MinecraftVersion[] = []
   @Trace current?: MinecraftVersion
+  @Trace gameProfile: GameProfile = Xb_getPersistence(GameProfile, ()=>new GameProfile())!;
   @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
 
   @Trace zipLoading: boolean = false
   @Trace homeDir: string = ""
   @Trace gameRootDir: string = ""
+
 
   async initHome(){
     const context = Xb_GlobalContext.getContext()
@@ -27,6 +31,8 @@ export class HomlViewModel {
     }
     this.homeDir  = sanbox;
     this.gameRootDir = this.homeDir + ".minecraft/"
+    fixLibs(this.gameRootDir)
+    createOfflineAccount(this.gameProfile.lastAccount, this.homeDir)
     this.loadVersions()
   }
 
@@ -86,6 +92,31 @@ export class HomlViewModel {
       gameMenuState?.screenWidth, gameMenuState?.screenHeight)
   }
 }
+
+export function fixLibs(dirGameNew: string){
+  if (!fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2")) {
+    try {
+      fileIo.mkdirSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2", true)
+      fileIo.copyFileSync(
+        dirGameNew + "/libraries/com/github/oshi/oshi-core/6.3.0/oshi-core-6.3.0.jar",
+        dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2/oshi-core-6.2.2.jar")
+    }catch (e) {
+    }
+  }
+
+}
+export function createOfflineAccount(username: string, home:string){
+  if (!fileIo.accessSync(home + "accounts/")) {
+    fileIo.mkdirSync(home + "accounts/", true)
+    if (!fileIo.accessSync(`${home}/accounts/${username}.json`)){
+      let file = fileIo.openSync(home + `/accounts/${username}.json`, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE);
+      fileIo.writeSync(file.fd, JSON.stringify(new MinecraftAccount()))
+      fileIo.close(file.fd)
+    }
+  }
+}
+
+
 export function getRunDirectory(id:string, gameDir: string, settings: VersionSetting | undefined): string {
   if(!settings)
     return gameDir;

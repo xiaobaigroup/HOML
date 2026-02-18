@@ -2,7 +2,7 @@ import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType,
   Xb_makePersistenceSettings } from "xb_components"
 import { GroupDataModel } from "../model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"
-import { HOMLState } from "../entryability/AppState"
+import { HOMLState, _HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { RENDERER_LIB } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
@@ -24,8 +24,6 @@ struct GameOptions {
   @Local viewModel: HomlViewModel = new HomlViewModel()
   @Local offlineSkinIndex: number = 0 // 临时
 
-  private pageStack: NavPathStack = new NavPathStack()
-
   build() {
     NavDestination() {
       SettingsListView({
@@ -39,18 +37,18 @@ struct GameOptions {
     .padding({ top: HOMLState.topRectHeight })
     .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
-      this.pageStack = ctx.pathStack
+      HOMLState.currentSettingsPageName = ctx.pathInfo.name
     })
-
   }
 
-  @Builder
+  @LocalBuilder
   skins() {
     ListItem() {
       TabSegmentButtonV2({
         items: this.offlineSkins,
-        selectedIndex: this.offlineSkinIndex!!,
+        selectedIndex: this.offlineSkinIndex,
         onItemClicked: (tab) => {
+          this.offlineSkinIndex = tab
         }
       })
     }
@@ -76,13 +74,13 @@ struct GameOptions {
   }
 
   get optionsSettingsGroups(): GroupDataModel[] {
-    // makePersistenceSettings 返回 state 后生成各 item
     const gameItems = this.buildGameItems(this.viewModel)
     // 高级选项（固定项）
     const advancedItems: Xb_SettingsItemData[] = [
       {
         label: '温馨提示',
         icon: $r('sys.symbol.info_circle'),
+        iconColor: HOMLState.currentThemeColor,
         content: '更改高级选项可能导致一些不可预测的严重问题，除非您有所把握，不建议更改高级选项。更改高级选项导致的问题启动器概不负责。',
         actionType: Xb_ActionType.TEXT,
       },
@@ -94,6 +92,7 @@ struct GameOptions {
       {
         label: '温馨提示',
         icon: $r('sys.symbol.info_circle'),
+        iconColor: HOMLState.currentThemeColor,
         content: '受技术限制，离线皮肤选项可能仅对 1.19.2 以前的版本生效。',
         actionType: Xb_ActionType.TEXT,
       },
@@ -106,14 +105,14 @@ struct GameOptions {
       },
       {
         title: '高级选项',
-        items: [...advancedItems, ...advancedStateItems]
+        items: advancedItems
       },
       {
         title: undefined, // 无标题组
-        items: [
+        items: [...advancedStateItems,
           {
             label: '附加参数',
-            value: '在启动游戏的命令行命令添加额外参数',
+            content: '在启动游戏的命令行命令添加额外参数',
             actionType: Xb_ActionType.Input,
             onChange: (v) => {
               // TODO: 打开附加参数编辑页
@@ -133,6 +132,7 @@ struct GameOptions {
       {
         label: '版本隔离',
         value: state.globalSetting.isolation,
+        iconColor: HOMLState.currentThemeColor,
         content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
@@ -141,6 +141,7 @@ struct GameOptions {
       },
       {
         label: '自动设置游戏语言',
+        iconColor: HOMLState.currentThemeColor,
         value:  state.globalSetting.autoSetGameLang,
         content: `自动将游戏语言设置为${'系统语言(简体中文)'}`,
         actionType: Xb_ActionType.TOGGLE,
@@ -187,6 +188,7 @@ struct GameOptions {
         label: '关闭文件校验',
         // UI 语义是“关闭校验”，底层存的是 file_verification
         value: !state.globalSetting.fileVerification,
+        iconColor: HOMLState.currentThemeColor,
         content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {

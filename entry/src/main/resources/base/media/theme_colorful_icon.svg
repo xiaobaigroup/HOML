@@ -1,0 +1,17 @@
+<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="32.000000" height="32.000000" fill="none" clip-path="url(#clipPath_8)" customFrame="url(#clipPath_8)">
+	<defs>
+		<clipPath id="clipPath_8">
+			<rect width="32.000000" height="32.000000" x="0.000000" y="0.000000" rx="16.000000" fill="rgb(255,255,255)" />
+		</clipPath>
+		<clipPath id="clipPath_9">
+			<rect width="31.999996" height="31.999996" x="0.000000" y="0.000000" rx="15.999998" fill="rgb(255,255,255)" transform="matrix(0.707107,0.707107,-0.707107,0.707107,16,-6.62744)" />
+		</clipPath>
+	</defs>
+	<rect id="容器 57" width="30.500000" height="30.500000" x="0.750000" y="0.750000" rx="15.250000" stroke="rgb(0,0,0)" stroke-opacity="0.200000003" stroke-width="1.500000" />
+	<g id="容器 56" clip-path="url(#clipPath_9)" customFrame="url(#clipPath_9)">
+		<rect id="容器 56" width="31.999996" height="31.999996" x="0.000000" y="0.000000" rx="15.999998" transform="matrix(0.707107,0.707107,-0.707107,0.707107,16,-6.62744)" />
+		<rect id="矩形 18" width="31.999996" height="10.666666" x="0.000000" y="0.000000" fill="rgb(10,89,247)" transform="matrix(0.707107,0.707107,-0.707107,0.707107,16,-6.62744)" />
+		<rect id="矩形 19" width="31.999996" height="10.666666" x="0.000000" y="0.000000" fill="rgb(91,168,84)" transform="matrix(0.707107,0.707107,-0.707107,0.707107,8.45752,0.915039)" />
+		<rect id="矩形 20" width="31.999996" height="10.666664" x="0.000000" y="0.000000" fill="rgb(232,64,38)" transform="matrix(0.707107,0.707107,-0.707107,0.707107,0.915039,8.45752)" />
+	</g>
+</svg>

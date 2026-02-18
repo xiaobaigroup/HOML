@@ -9,7 +9,9 @@ export class _HOMLState {
   @Trace showUserInfo: boolean = false
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
+  @Trace currentThemeColor?: ResourceColor = undefined
   @Trace pageStack: NavPathStack = new NavPathStack()
+  @Trace currentSettingsPageName: string = 'global_game_options'
 
   // -- 窗口相关 --
   public static UIContext: UIContext
@@ -46,7 +48,14 @@ export class _HOMLState {
 
 @ObservedV2
 export class UISettings {
+  // 深色模式
   @Trace DarkMode: ThemeColorMode = ThemeColorMode.SYSTEM
+  // 主题色
+  @Trace ThemeColor: string = 'default'
+  // 随机主题色
+  @Trace RandomTheme: boolean = false
+  // 主页背景
+  @Trace HomeBackground: 'image' | 'pure' = 'pure'
 }
 
 

@@ -3,7 +3,7 @@ import { Xb_BreakpointFunction, Xb_BreakpointFunction2D } from "xb_components"
 /** 主分段按钮宽度 */
 export const MainTabButtonWidth = Xb_BreakpointFunction2D<Length>({
   ['sm']: {['hsm']: '86%', ['hmd']: '86%', ['hlg']: '86%' },
-  ['md']: {['hsm']: '52%', ['hmd']: '69%', ['hlg']: '69%' },
+  ['md']: {['hsm']: '46%', ['hmd']: '69%', ['hlg']: '69%' },
   ['lg']: {['hsm']: '18.6%', ['hmd']: '18.6%', ['hlg']: '18.6%' },
   ['xl']: {['hsm']: '18.6%', ['hmd']: '18.6%', ['hlg']: '18.6%' },
 })

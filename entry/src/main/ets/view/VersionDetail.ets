@@ -72,7 +72,7 @@ struct VersionDetail {
   title(title?: ResourceStr) {
     Text(title || "")
       .fontSize(16)
-      .padding({ top: 6, bottom: 12, left: 3 })
+      .padding({ top: 6, left: 16 })
       .fontColor( $r("sys.color.font_secondary"))
   }
 

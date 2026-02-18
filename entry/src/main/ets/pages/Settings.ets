@@ -1,13 +1,13 @@
-import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType } from "xb_components"
+import { Xb_ActionType, Xb_SettingsItemData } from "xb_components"
 import { SettingsListStartOffset, SettingsTopBlankHeight } from "../common/BreakPoint"
-import { HOMLState } from "../entryability/AppState"
-import { LengthMetrics } from "@kit.ArkUI"
+import { HOMLState, _HOMLState } from "../entryability/AppState"
+import { LengthMetrics, window } from "@kit.ArkUI"
 
 
 @ComponentV2
 export struct Settings {
 
-  @Local currentItem: string = HOMLState.widthBp >= 2 ? 'global_game_options' : ''
+  private pageStack: NavPathStack = new NavPathStack()
 
   build() {
     Column() {
@@ -16,7 +16,7 @@ export struct Settings {
       if (HOMLState.widthBp < 2 ) {
         this.SettingsList()
       } else {
-        Navigation(HOMLState.pageStack) {
+        Navigation(this.pageStack) {
           this.SettingsList()
         }
         .width('100%')
@@ -24,12 +24,11 @@ export struct Settings {
         .hideToolBar(true)
         .hideTitleBar(true)
         .onDisAppear(() => {
-          HOMLState.pageStack.clear()
+          this.pageStack.clear()
         })
         .onAppear(() => {
           if (HOMLState.widthBp >= 2 ) {
-            const items = this.getSettings()
-            HOMLState.pageStack.replacePathByName(items[0].id, true)
+            this.pageStack.replacePathByName(HOMLState.currentSettingsPageName, true)
           }
         })
       }
@@ -37,8 +36,8 @@ export struct Settings {
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Start)
-    .padding({ left: HOMLState.leftAvoidWidth })
     .backgroundColor($r('sys.color.background_secondary'))
+    .padding({ left: HOMLState.leftAvoidWidth, right: HOMLState.rightAvoidWidth })
 
   }
 
@@ -49,23 +48,31 @@ export struct Settings {
         ListItem() {
           Flex({ direction: FlexDirection.Row, space: { main: LengthMetrics.vp(10) }, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center }) {
             SymbolGlyph(item.icon)
-              .fontColor([(item.id == this.currentItem) && HOMLState.widthBp >= 2 ? $r('app.color.blue') : $r('sys.color.font_primary')])
+              .fontColor([(item.id == HOMLState.currentSettingsPageName) && HOMLState.widthBp >= 2 ? HOMLState.currentThemeColor || $r('app.color.blue') : $r('sys.color.font_primary')])
               .fontSize(24)
             Text(item.label)
               .fontSize(18)
-              .fontColor((item.id == this.currentItem) && HOMLState.widthBp >= 2 ? $r('app.color.blue') : $r('sys.color.font_primary'))
+              .fontColor((item.id == HOMLState.currentSettingsPageName) && HOMLState.widthBp >= 2 ? HOMLState.currentThemeColor || $r('app.color.blue') : $r('sys.color.font_primary'))
           }
         }
         .padding(12)
         .borderRadius(16)
         .margin({ left: 12, right: 12 })
-        .backgroundColor(item.id == this.currentItem || HOMLState.widthBp < 2 ? $r('app.color.settings_switch_button_floor') : undefined)
+        .backgroundColor(item.id == HOMLState.currentSettingsPageName || HOMLState.widthBp < 2 ? $r('app.color.settings_switch_button_floor') : undefined)
         .onClick(() => {
-          this.currentItem = item.id!
+          if (item.id == 'virtual_control_button') {
+            HOMLState.pageStack.pushPathByName(item.id, true)
+            return // 无需更新，结束执行
+          }
+          // 更新侧栏高亮
+          HOMLState.currentSettingsPageName = item.id!
+          // 根据窗口尺寸决定路由容器
           if (HOMLState.widthBp < 2) {
+            // 使用全局栈（全屏跳转）
             HOMLState.pageStack.pushPathByName(item.id, true)
           } else {
-            HOMLState.pageStack.replacePathByName(item.id, true)
+            // 使用分栏内部栈（右侧刷新）
+            this.pageStack.replacePathByName(item.id, true)
           }
         })
       })
@@ -101,6 +108,5 @@ export struct Settings {
       }
     ]
   }
-
 
 }

@@ -75,20 +75,23 @@ export struct Home {
               .fontSize(15)
               .fontColor($r('sys.color.font_on_primary'))
           }
-        }.onClick(() => {
-          if (!this.viewmodel.current) {
-            HOMLState.showVersions = true
-          }else{
-            this.getUIContext().getRouter().pushUrl({url:"pages/Game"})
-          }
-        })
+        }
         .width(StartButtonWidth)
         .height(56)
         .borderRadius(12)
         .margin({ right: 12 })
-        .backgroundColor($r('app.color.green'))
+        .backgroundColor(HOMLState.currentThemeColor || $r('app.color.green'))
         .bindContextMenu(this.MenuBuilder, ResponseType.LongPress, {
           placement: Placement.Top,
+        })
+        .onClick(() => {
+          if (!this.viewmodel.current) {
+            HOMLState.showVersions = true
+          } else {
+            this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
+              console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
+            })
+          }
         })
       }
       .height(72)
@@ -110,6 +113,7 @@ export struct Home {
       backgroundColor: Color.Transparent,
       preferType: SheetType.BOTTOM,
       blurStyle: BlurStyle.Thin,
+      width: '100%',
       onWillAppear: () => {
         HOMLState.showBackgroundBlur = true
       },
@@ -152,7 +156,7 @@ export struct Home {
             icon: item.icon,
             image: item.image,
             text: item.title,
-            iconColor: $r('app.color.blue'),
+            iconColor: HOMLState.currentThemeColor || $r('app.color.blue'),
             theBackgroundColor: $r('sys.color.button_background_color_transparent'),
             onCheck: () => {
               item.onAction()

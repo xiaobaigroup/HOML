@@ -1,6 +1,7 @@
 import { EventHub, Xb_ColorModeManager, Xb_getAppStore, Xb_getPersistence,
   Xb_getPersistenceByName,
-  Xb_SwitchButton } from 'xb_components';
+  Xb_SwitchButton,
+  Xb_ThemeColorUtil} from 'xb_components';
 import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth, WindowLogoTextMargin,
   WindowMainTabButtonMargin } from '../common/BreakPoint';
 import { EventKey } from '../common/EventKey';
@@ -26,23 +27,26 @@ struct Index {
     this.registerEvent()
     // 发送初始化事件
     this.sendEvent()
+    // 初始化所有热更新状态
+    this.initState()
+  }
+
+  aboutToDisappear(): void {
+    // 注销事件
+    this.unregister()
   }
 
   build() {
-    if (HOMLState.widthBp < 2) {
-      Navigation(HOMLState.pageStack) {
-        this.Main()
-      }
-      .height('100%')
-      .hideToolBar(true)
-      .hideTitleBar(true)
-      .mode(NavigationMode.Stack)
-      .onDisAppear(() => {
-        HOMLState.pageStack.clear()
-      })
-    } else {
+    Navigation(HOMLState.pageStack) {
       this.Main()
     }
+    .height('100%')
+    .hideToolBar(true)
+    .hideTitleBar(true)
+    .mode(NavigationMode.Stack)
+    .onDisAppear(() => {
+      HOMLState.pageStack.clear()
+    })
   }
 
   @Builder
@@ -67,7 +71,7 @@ struct Index {
         Row() {
           Xb_SwitchButton({
             switchOne: HOMLState.mainCurrentTab,
-            selectedColor: getColorWithTransparency(this.getUIContext().getHostContext()!, HOMLState.mainCurrentTab == 0 ? $r('app.color.green') : $r('app.color.blue'), 0.9),
+            selectedColor: getColorWithTransparency(this.getUIContext().getHostContext()!, (HOMLState.currentThemeColor || (HOMLState.mainCurrentTab == 0 ? $r('app.color.green') : $r('app.color.blue'))), 0.9),
             items: [
               { text: '主页', symbol: $r('sys.symbol.house_fill') },
               { text: '设置', symbol: $r('sys.symbol.gearshape_fill') },
@@ -141,6 +145,7 @@ struct Index {
 
   // 注册事件
   registerEvent() {
+    // 深色模式切换事件
     EventHub.on(EventKey.SwitchDarkMode, (color_mode?: ThemeColorMode) => {
       let darkMode = color_mode
       if (!darkMode) {
@@ -148,11 +153,25 @@ struct Index {
       }
       Xb_ColorModeManager.setThemeColorMode(_HOMLState.context, darkMode)
     })
+
   }
 
   // 发送事件
   sendEvent() {
     EventHub.sendEvent(EventKey.SwitchDarkMode)
+  }
+
+  // 状态初始化
+  initState() {
+    // 初始化主题色
+    if (this.UIstate.RandomTheme) {
+      const randomName = Xb_ThemeColorUtil.getRandomThemeName()
+      this.UIstate.ThemeColor = randomName.replace('AppTheme', '')
+    }
+    if (this.UIstate.ThemeColor !== 'default') {
+      HOMLState.currentThemeColor = Xb_ThemeColorUtil.getThemeColor(`${this.UIstate.ThemeColor}AppTheme`)
+    }
+
   }
 
   // 注销事件

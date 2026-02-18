@@ -35,7 +35,7 @@ export struct Versions {
         Search({
           placeholder: '搜索版本...'
         })
-          .margin({ left: 12, right: 12 })
+          .margin({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
           .onSubmit((data) => {
 
           })
@@ -52,12 +52,12 @@ export struct Versions {
             }
           }
         })
-          .padding({ left: 12, right: 12 })
+          .padding({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
       }
       .width('100%')
       .height('100%')
-
     }
+    .width('100%')
     .navBarWidth(330)
     .hideToolBar(true)
     .hideTitleBar(true)

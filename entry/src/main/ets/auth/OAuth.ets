@@ -21,7 +21,7 @@ export class NoSelectedCharacterException extends AuthenticationException {
 }
 export class ServerResponseMalformedException extends AuthenticationException {
   constructor(cause?: string) {
-    super('Server response malformed');
+    super('Server response malformed' + cause);
   }
 }
 export class CredentialExpiredException extends AuthenticationException {
@@ -189,7 +189,7 @@ export class OAuth {
       if (estimatedTime / 1000 >= Math.min(deviceTokenResponse.expires_in, 900)) {
         throw new NoSelectedCharacterException();
       }
-      const tokenResponse = (await http.createHttp().request(this.tokenURL, {
+      const response = (await http.createHttp().request(this.tokenURL, {
         method: http.RequestMethod.POST,
         extraData: withQuery("", {
           'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
@@ -199,7 +199,8 @@ export class OAuth {
         header:{
           "Content-Type": "application/x-www-form-urlencoded"
         }
-      })).result as TokenResponse
+      }))
+      const tokenResponse = toJson<TokenResponse>(response)
       if (tokenResponse.error === 'authorization_pending') {
         continue;
       }

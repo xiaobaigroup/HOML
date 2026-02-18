@@ -123,15 +123,15 @@ export class MicrosoftService {
       extraData: {
         identityToken: `XBL3.0 x=${uhs};${minecraftXstsResponse!.Token}`
       },
-      header:{ "accept": "application/json", "authorization": `Bearer ${minecraftXstsResponse!.Token}` } }
+      header:{ "accept": "application/json", "Authorization": `Bearer ${minecraftXstsResponse!.Token}` } }
     ));
-    const minecraftResponse =  toJson<MinecraftLoginWithXBoxResponse>(xresponse)
+    const minecraftResponse = toJson<MinecraftLoginWithXBoxResponse>(xresponse)
 
     const notAfter = minecraftResponse.expires_in * 1000 + Date.now();
 
     // Check MC ownership
     const response = (await http.createHttp().request('https://api.minecraftservices.com/entitlements/mcstore', {
-      method: http.RequestMethod.GET, header:{ "accept": "application/json", "authorization": `Bearer ${minecraftResponse.access_token}` } }
+      method: http.RequestMethod.GET, header:{ "accept": "application/json", "Authorization": `Bearer ${minecraftResponse.access_token}` } }
     ));
 
     if (response.responseCode !== 200) {
@@ -155,19 +155,11 @@ export class MicrosoftService {
   async getCompleteProfile(authorization: string): Promise<MinecraftProfileResponse | null> {
     try {
       const response = (await http.createHttp().request('https://api.minecraftservices.com/minecraft/profile', {
-        method: http.RequestMethod.GET, header:{ "authorization": authorization } }
+        method: http.RequestMethod.GET, header:{ "Authorization": authorization } }
       ));
       return toJson<MinecraftProfileResponse>(response)
     } catch (e) {
-      if (e instanceof Error) {
-        if (e.name === 'IOException') {
-          throw new ServerDisconnectException(e);
-        }
-        if (e.name === 'JsonParseException') {
-          throw new ServerResponseMalformedException(e.message);
-        }
-      }
-      throw Error(e);
+      throw Error(e.message);
     }
   }
 
@@ -227,7 +219,7 @@ export class MicrosoftService {
           + "UniqueModernGamertag,AccountTier,TenureLevel,XboxOneRep,"
           + "PreferredColor,Location,Bio,Watermarks,"
           + "RealName,RealNameOverride,IsQuarantined"
-      }, header:{ "accept": `application/json`, 'authorization':`XBL3.0 x=${uhs};${xstsToken}`, 'x-xbl-contract-version': '3' } }
+      }, header:{ "accept": `application/json`, 'Authorization':`XBL3.0 x=${uhs};${xstsToken}`, 'x-xbl-contract-version': '3' } }
     )).result;
   }
 
@@ -236,7 +228,7 @@ export class MicrosoftService {
     //   .authorization(`${tokenType} ${accessToken}`)
     //   .createConnection();
     const response = (await http.createHttp().request('https://api.minecraftservices.com/minecraft/profile', {
-      method: http.RequestMethod.GET, header:{ "authorization": `${tokenType} ${accessToken}` } }
+      method: http.RequestMethod.GET, header:{ "Authorization": `${tokenType} ${accessToken}` } }
     ));
     const responseCode = response.responseCode;
     if (responseCode === 404) {

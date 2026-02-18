@@ -9,6 +9,8 @@ import { VersionSetting } from "../model/VersionSetting";
 import { jvmLauncher } from "./JVMLauncher";
 import { MinecraftAccount } from "../model/MinecraftAccount";
 import { GameProfile } from "../model/GameProfile";
+import { MicrosoftService } from "../auth/MicrosoftService";
+import { OAuthServer } from "../auth/OAuthServer";
 
 @ObservedV2
 export class HomlViewModel {
@@ -22,7 +24,17 @@ export class HomlViewModel {
   @Trace homeDir: string = ""
   @Trace gameRootDir: string = ""
 
+  ms: MicrosoftService = new MicrosoftService(new OAuthServer())
 
+  async toLogin(){
+    try {
+      await this.ms.authenticate()
+    } catch (e) {
+      Xb_ToastUtil.showToast({message:"登录失败:" + e.message})
+      console.error("authenticate failure:" + e.message, e.stack)
+    }
+
+  }
   async initHome(){
     const context = Xb_GlobalContext.getContext()
     const sanbox = context.filesDir + "/HOML/"

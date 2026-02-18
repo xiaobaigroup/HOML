@@ -205,7 +205,7 @@ export struct Home {
         image: $r('app.media.microsoft'),
         title: '微软',
         onAction: async () => {
-
+          this.viewmodel.toLogin()
         }
       }
     ]

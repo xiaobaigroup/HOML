@@ -2,7 +2,8 @@
 import { OAuth, Callback, GrantFlow, Result as OAuthResult, AuthenticationException, ServerDisconnectException, ServerResponseMalformedException, RemoteAuthenticationException,
   Options,
   ResponseCodeException,
-  toJson, } from './OAuth';
+  toJson,
+  withQuery, } from './OAuth';
 import { http } from '@kit.NetworkKit';
 
 // 常量
@@ -37,37 +38,13 @@ export class MicrosoftService {
 
 
   async authenticate(): Promise<MicrosoftSession> {
-    try {
-      const result = await OAuth.MICROSOFT.authenticate(GrantFlow.DEVICE, new Options(SCOPE, this.callback));
-      return await this.authenticateViaLiveAccessToken(result.accessToken, result.refreshToken);
-    } catch (e) {
-      if (e instanceof Error) {
-        if (e.name === 'IOException') {
-          throw new ServerDisconnectException(e);
-        }
-        if (e.name === 'JsonParseException') {
-          throw new ServerResponseMalformedException(e.message);
-        }
-      }
-      throw new ServerResponseMalformedException(e);
-    }
+    const result = await OAuth.MICROSOFT.authenticate(GrantFlow.DEVICE, new Options(SCOPE, this.callback));
+    return await this.authenticateViaLiveAccessToken(result.accessToken, result.refreshToken);
   }
 
   async refresh(oldSession: MicrosoftSession): Promise<MicrosoftSession> {
-    try {
-      const result = await OAuth.MICROSOFT.refresh(oldSession.refreshToken, new Options(SCOPE, this.callback));
-      return await this.authenticateViaLiveAccessToken(result.accessToken, result.refreshToken);
-    } catch (e) {
-      if (e instanceof Error) {
-        if (e.name === 'IOException') {
-          throw new ServerDisconnectException(e);
-        }
-        if (e.name === 'JsonParseException') {
-          throw new ServerResponseMalformedException(e.message);
-        }
-      }
-      throw Error(e);
-    }
+    const result = await OAuth.MICROSOFT.refresh(oldSession.refreshToken, new Options(SCOPE, this.callback));
+    return await this.authenticateViaLiveAccessToken(result.accessToken, result.refreshToken);
   }
 
   private getUhs(response: XBoxLiveAuthenticationResponse | undefined, existingUhs: string | undefined): string {
@@ -89,8 +66,8 @@ export class MicrosoftService {
   }
 
   private async authenticateViaLiveAccessToken(
-    liveAccessToken: string,
-    liveRefreshToken: string
+    liveAccessToken?: string,
+    liveRefreshToken?: string
   ): Promise<MicrosoftSession> {
     let uhs: string | undefined;
     let xboxResponse: XBoxLiveAuthenticationResponse;
@@ -109,21 +86,27 @@ export class MicrosoftService {
           RelyingParty: 'http://auth.xboxlive.com',
           TokenType: 'JWT'
         },
-        header:{ "accept": "application/json"} }
+        header:{
+          "Content-Type": "application/json", "accept": "application/json"
+        }
+      }
       ));
       xboxResponse = toJson<XBoxLiveAuthenticationResponse>( response)
       uhs = this.getUhs(xboxResponse, undefined);
       const Response = (await http.createHttp().request('https://xsts.auth.xboxlive.com/xsts/authorize', {
         method: http.RequestMethod.POST,
-        extraData:{
-          Properties: {
-            SandboxId: 'RETAIL',
-            UserTokens: [xboxResponse.Token]
+        extraData: {
+          "Properties": {
+            "SandboxId": 'RETAIL',
+            "UserTokens": [xboxResponse.Token]
           },
-          RelyingParty: 'rp://api.minecraftservices.com/',
-          TokenType: 'JWT'
+          "RelyingParty": 'rp://api.minecraftservices.com/',
+          "TokenType": 'JWT'
         },
-        header:{ "accept": "application/json"} }
+        header: {
+          "Content-Type": "application/json", "accept": "application/json"
+        }
+      }
       ));
       minecraftXstsResponse = toJson<XBoxLiveAuthenticationResponse>(Response)
     } catch (e) {
@@ -143,13 +126,6 @@ export class MicrosoftService {
       header:{ "accept": "application/json", "authorization": `Bearer ${minecraftXstsResponse!.Token}` } }
     ));
     const minecraftResponse =  toJson<MinecraftLoginWithXBoxResponse>(xresponse)
-    // const minecraftResponse = await HttpRequest.POST('https://api.minecraftservices.com/authentication/login_with_xbox')
-    //   .json({
-    //     identityToken: `XBL3.0 x=${uhs};${minecraftXstsResponse.token}`
-    //   })
-    //   .retry(5)
-    //   .accept('application/json')
-    //   .getJson<MinecraftLoginWithXBoxResponse>();
 
     const notAfter = minecraftResponse.expires_in * 1000 + Date.now();
 
@@ -170,7 +146,7 @@ export class MicrosoftService {
       minecraftResponse.token_type,
       minecraftResponse.access_token,
       notAfter,
-      liveRefreshToken,
+      liveRefreshToken!,
       new MicrosoftSessionUser(minecraftResponse.username),
       new MicrosoftGameProfile(profileResponse.id, profileResponse.name)
     );

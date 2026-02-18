@@ -5,12 +5,12 @@ import { uri } from "@kit.ArkTS";
 export class AuthenticationException extends Error {}
 
 export class ResponseCodeException extends AuthenticationException {
-  constructor(public url?: string, code?: number) {
+  constructor(url?: string, code?: number) {
     super('ResponseCodeException ' + url + " " + code);
   }
 }
 export class ServerDisconnectException extends AuthenticationException {
-  constructor(public cause?: Error) {
+  constructor(cause?: Error) {
     super('Server disconnected');
   }
 }
@@ -20,7 +20,7 @@ export class NoSelectedCharacterException extends AuthenticationException {
   }
 }
 export class ServerResponseMalformedException extends AuthenticationException {
-  constructor(public cause?: string) {
+  constructor(cause?: string) {
     super('Server response malformed');
   }
 }
@@ -31,20 +31,12 @@ export class CredentialExpiredException extends AuthenticationException {
 }
 export class RemoteAuthenticationException extends AuthenticationException {
   constructor(
-    public error: string,
-    public errorDescription: string,
-    public errorUri: string
+     error: string,
+     errorDescription: string,
+     errorUri: string
   ) {
     super(`${error}: ${errorDescription}`);
   }
-}
-
-// 工具函数
-export function mapOf<K extends string, V>(...pairs: [K, V][]): Record<K, V> {
-  return pairs.reduce((acc, [key, value]) => {
-    acc[key] = value;
-    return acc;
-  }, {} as Record<K, V>);
 }
 
 export function toJson<T>(response: http.HttpResponse){
@@ -61,12 +53,40 @@ export function toJson<T>(response: http.HttpResponse){
 export class NetworkUtils {
   static withQuery(url: string, params: Record<string, string>): string {
     const urlObj = new uri.URI(url);
-    Object.entries(params).forEach(([key, value]) => {
-      urlObj.addQueryValue(key, value)
+    Object.entries(params).forEach((o) => {
+      urlObj.addQueryValue(o[0], o[1])
     });
     return urlObj.toString();
   }
 }
+
+export function withQuery(baseUrl: string, params: Record<string, string | null | undefined>): string {
+  const PARAMETER_SEPARATOR = '&';
+  const NAME_VALUE_SEPARATOR = '=';
+
+  let sb = baseUrl;
+  let first = true;
+
+  for (const kv of Object.entries(params)) {
+    if (kv[1] == null) continue; // 跳过 null 和 undefined
+
+    if (first) {
+      if (baseUrl.length > 0) {
+        sb += '?';
+      }
+      first = false;
+    } else {
+      sb += PARAMETER_SEPARATOR;
+    }
+
+    sb += encodeURIComponent(kv[0]);
+    sb += NAME_VALUE_SEPARATOR;
+    sb += encodeURIComponent(kv[1]);
+  }
+
+  return sb.toString();
+}
+
 
 // OAuth 类
 export class OAuth {
@@ -76,13 +96,21 @@ export class OAuth {
     'https://login.microsoftonline.com/consumers/oauth2/v2.0/devicecode',
     'https://login.microsoftonline.com/consumers/oauth2/v2.0/token'
   );
-
+  private authorizationURL: string
+  private accessTokenURL: string
+  private deviceCodeURL: string
+  private tokenURL: string
   constructor(
-    private readonly authorizationURL: string,
-    private readonly accessTokenURL: string,
-    private readonly deviceCodeURL: string,
-    private readonly tokenURL: string
-  ) {}
+    authorizationURL: string,
+    accessTokenURL: string,
+    deviceCodeURL: string,
+    tokenURL: string
+  ) {
+    this.authorizationURL = authorizationURL
+    this.accessTokenURL =accessTokenURL
+    this.deviceCodeURL = deviceCodeURL
+    this.tokenURL = tokenURL
+  }
 
   async authenticate(grantFlow: GrantFlow, options: Options): Promise<Result> {
     try {
@@ -95,18 +123,7 @@ export class OAuth {
           throw new Error(`grant flow ${grantFlow}`);
       }
     } catch (e) {
-      if (e instanceof Error) {
-        if (e.name === 'IOException') {
-          throw new ServerDisconnectException(e);
-        }
-        if (e.name === 'InterruptedException') {
-          throw new NoSelectedCharacterException();
-        }
-        if (e.name === 'JsonParseException') {
-          throw new ServerResponseMalformedException(e.message);
-        }
-      }
-      throw e;
+        throw Error(e.message);
     }
   }
 
@@ -114,11 +131,11 @@ export class OAuth {
     const session = await options.callback.startServer();
     await options.callback.openBrowser(
       NetworkUtils.withQuery(this.authorizationURL, {
-        client_id: options.callback.getClientId(),
-        response_type: 'code',
-        redirect_uri: session.getRedirectURI(),
-        scope: options.scope,
-        prompt: 'select_account'
+        "client_id": options.callback.getClientId(),
+        "response_type": 'code',
+        "redirect_uri": session.getRedirectURI(),
+        "scope": options.scope,
+        "prompt": 'select_account'
       })
     );
 
@@ -127,29 +144,35 @@ export class OAuth {
     // Authorization Code -> Token
     const response = (await http.createHttp().request(this.accessTokenURL, {
       method: http.RequestMethod.POST,
-      extraData: {
+      extraData: withQuery("", {
         'client_id': options.callback.getClientId(),
         'code': code,
         'grant_type': 'authorization_code',
         'client_secret': options.callback.getClientSecret(),
         'redirect_uri': session.getRedirectURI(),
         'scope': options.scope
-      }}
-    )).result as AuthorizationResponse;
-
-
-    this.handleErrorResponse(response);
-    return new Result(response.access_token, response.refresh_token);
+      }),
+      header:{
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }
+    ));
+    const result = toJson<AuthorizationResponse>(response)
+    this.handleErrorResponse(result);
+    return new Result(result.access_token, result.refresh_token);
   }
 
   private async authenticateDevice(options: Options): Promise<Result> {
-    const deviceTokenResponse = (await http.createHttp().request(this.deviceCodeURL, {
-      method: http.RequestMethod.POST,
-      extraData: {
-        'client_id': options.callback.getClientId(),
-        'scope': options.scope
-      }}
-    )).result as DeviceTokenResponse;
+    const response = (await http.createHttp().request(this.deviceCodeURL, {
+        method: http.RequestMethod.POST,
+        extraData: withQuery("", {
+          'client_id': options.callback.getClientId(),
+          'scope': options.scope
+        }),
+        header: {'content-Type':"application/json", "Content-Type": "application/x-www-form-urlencoded"}
+      }
+    ));
+    const deviceTokenResponse = toJson<DeviceTokenResponse>(response)
     this.handleErrorResponse(deviceTokenResponse);
     options.callback.grantDeviceCode(deviceTokenResponse.user_code, deviceTokenResponse.verification_uri);
     // Microsoft OAuth Flow
@@ -168,12 +191,14 @@ export class OAuth {
       }
       const tokenResponse = (await http.createHttp().request(this.tokenURL, {
         method: http.RequestMethod.POST,
-        extraData: {
+        extraData: withQuery("", {
           'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
           'code': deviceTokenResponse.device_code,
           'client_id': options.callback.getClientId(),
-
-        },
+        }),
+        header:{
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
       })).result as TokenResponse
       if (tokenResponse.error === 'authorization_pending') {
         continue;
@@ -191,10 +216,11 @@ export class OAuth {
 
   async refresh(refreshToken: string, options: Options): Promise<Result> {
     try {
-      const query: Record<string, string> = {
-        client_id: options.callback.getClientId(),
-        refresh_token: refreshToken,
-        grant_type: 'refresh_token'
+      const query: Record<string, string| null| undefined>= {
+        "client_id": options.callback.getClientId(),
+        "refresh_token": refreshToken,
+        "grant_type": 'refresh_token',
+        "client_secret": null
       };
 
       if (!options.callback.isPublicClient()) {
@@ -202,7 +228,10 @@ export class OAuth {
       }
       const response = await http.createHttp().request(this.tokenURL, {
           method: http.RequestMethod.POST,
-          extraData: query,
+          extraData: withQuery("", query),
+          header:{
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
       })
       const result = response.result as RefreshResponse
       this.handleErrorResponse(result);
@@ -216,7 +245,7 @@ export class OAuth {
           throw new ServerResponseMalformedException(e.message);
         }
       }
-      throw e;
+      throw Error(e.message);
     }
   }
 
@@ -225,8 +254,7 @@ export class OAuth {
       return;
     }
 
-    if (response.error === 'invalid_grant' &&
-    response.error_description?.includes('AADSTS70000')) {
+    if (response.error === 'invalid_grant' && response.error_description?.includes('AADSTS70000')) {
       throw new CredentialExpiredException();
     }
     throw new RemoteAuthenticationException(
@@ -243,13 +271,17 @@ export class OAuth {
 
 export class Options {
   userAgent?: string;
-
+  public readonly scope: string
+  public readonly callback: Callback
   constructor(
-    public readonly scope: string,
-    public readonly callback: Callback
-  ) {}
+    scope: string,
+    callback: Callback
+  ) {
+    this.scope = scope
+    this.callback = callback
+  }
 
-  setUserAgent(userAgent: string): this {
+  setUserAgent(userAgent: string): Options  {
     this.userAgent = userAgent;
     return this;
   }
@@ -289,7 +321,7 @@ export interface Callback {
 
   getClientId(): string;
 
-  getClientSecret(): string;
+  getClientSecret(): string | null;
 
   isPublicClient(): boolean;
 }
@@ -300,10 +332,15 @@ export enum GrantFlow {
 }
 
 export class Result {
+  public accessToken?: string
+  public refreshToken?: string
   constructor(
-    public readonly accessToken: string,
-    public readonly refreshToken: string
-  ) {}
+     accessToken?: string,
+     refreshToken?: string
+  ) {
+    this.accessToken = accessToken
+    this.refreshToken = refreshToken
+  }
 }
 
 // 响应类型定义

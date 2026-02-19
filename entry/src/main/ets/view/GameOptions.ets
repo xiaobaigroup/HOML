@@ -1,8 +1,9 @@
 import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType,
-  Xb_makePersistenceSettings } from "xb_components"
+  Xb_makePersistenceSettings,
+  Xb_getPersistence} from "xb_components"
 import { GroupDataModel } from "../model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"
-import { HOMLState, _HOMLState } from "../entryability/AppState"
+import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { RENDERER_LIB } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
@@ -16,6 +17,7 @@ export function GameOptionsBuilder(name: string, param: Object) {
 @ComponentV2
 struct GameOptions {
 
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
   @Local offlineSkins: SegmentButtonV2Items = new SegmentButtonV2Items([
     { text: 'Stave 史蒂夫', icon: getIconResource('stave') },
     { text: 'Alex 艾利克斯', icon: getIconResource('alex') },
@@ -35,7 +37,7 @@ struct GameOptions {
     }
     .title('全局游戏选项')
     .padding({ top: HOMLState.topRectHeight })
-    .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+    .backgroundColor(this.UIstate.HomeBackground == 'image' && HOMLState.widthBp > 1 ? Color.Transparent : $r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
       HOMLState.currentSettingsPageName = ctx.pathInfo.name
     })
@@ -63,7 +65,7 @@ struct GameOptions {
               // TODO 选择皮肤
             }
           },
-          themeType: ThemeType.Auto,
+          themeType: this.UIstate.DarkMode as number,
         })
       }
       .borderRadius(16)

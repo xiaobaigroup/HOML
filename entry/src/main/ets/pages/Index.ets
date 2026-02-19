@@ -10,14 +10,16 @@ import { HomlViewModel } from '../core/HomlViewModel';
 import { HOMLState, UISettings, _HOMLState } from '../entryability/AppState';
 import { Home } from './Home';
 import { Settings } from './Settings';
+import { fileUri } from '@kit.CoreFileKit';
 
 
 @Entry
 @ComponentV2
 struct Index {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel,()=> new HomlViewModel())!
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
+  @Local mainBackgroundImage: string = ''
 
-  private UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
   private panOptionL: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Left })
   private panOptionR: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Right })
 
@@ -52,6 +54,10 @@ struct Index {
   @Builder
   Main() {
     Stack() {
+      // 背景图
+      Image(this.mainBackgroundImage)
+        .width('100%')
+        .height('100%')
       if (HOMLState.mainCurrentTab == 0) {
         Home()
       } else {
@@ -108,7 +114,7 @@ struct Index {
     }
     .height('100%')
     .align(Alignment.Top)
-    .backgroundColor($r('sys.color.background_secondary'))
+    .backgroundColor(this.UIstate.HomeBackground == 'image' ? Color.Transparent : $r('sys.color.background_secondary'))
     .foregroundBlurStyle(HOMLState.showBackgroundBlur ? BlurStyle.Thin : BlurStyle.NONE,
       { colorMode: ThemeColorMode.SYSTEM, adaptiveColor: AdaptiveColor.DEFAULT, scale: 0.3 })
     // 左滑手势
@@ -170,6 +176,12 @@ struct Index {
     }
     if (this.UIstate.ThemeColor !== 'default') {
       HOMLState.currentThemeColor = Xb_ThemeColorUtil.getThemeColor(`${this.UIstate.ThemeColor}AppTheme`)
+    }
+    // 初始化背景
+    if (this.UIstate.HomeBackground == 'image') {
+      const filePath = _HOMLState.context.filesDir +
+        (_HOMLState.windowWidth_px < _HOMLState.windowHeight_px ? '/background_portrait.jpg' : 'background_landscape.jpg');
+      this.mainBackgroundImage = fileUri.getUriFromPath(filePath)
     }
 
   }

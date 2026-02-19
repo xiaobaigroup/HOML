@@ -16,6 +16,7 @@ export function AppearanceBuilder(name: string, param: Object) {
 @ComponentV2
 struct Appearance {
 
+  private pageStack: NavPathStack = new NavPathStack()
   @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
   @Local darkModeItems: SegmentButtonV2Items = new SegmentButtonV2Items([
     { text: '跟随系统', icon: getIconResource('system') },
@@ -29,13 +30,17 @@ struct Appearance {
         groups: this.appearanceSettingsGroups(),
         headerBuilder: () => {
           this.darkMode()
+        },
+        endBuilder: () => {
+          this.editBackgroundImage()
         }
       })
     }
     .title('启动器外观')
     .padding({ top: HOMLState.topRectHeight })
-    .backgroundColor($r('sys.color.ohos_id_color_sub_background'))
+    .backgroundColor(this.UIstate.HomeBackground == 'image' && HOMLState.widthBp > 1 ? Color.Transparent : $r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
+      this.pageStack = ctx.pathStack
       HOMLState.currentSettingsPageName = ctx.pathInfo.name
     })
   }
@@ -54,6 +59,28 @@ struct Appearance {
       }
     }
     .margin({ left: 12, right: 12 })
+  }
+
+  @Builder
+  editBackgroundImage() {
+    if (this.UIstate.HomeBackground == 'image') {
+      ListItem() {
+        Xb_SettingsItem({
+          item: {
+            label: '编辑图片',
+            actionType: Xb_ActionType.JUMP,
+            onChange: () => {
+              this.pageStack.pushPathByName('image_edit', undefined, true)
+            }
+          },
+          themeType: this.UIstate.DarkMode as number,
+        })
+      }
+      .borderRadius(16)
+      .padding({ top: 12, bottom: 12 })
+      .margin({ left: 12, right: 12 })
+      .backgroundColor($r('sys.color.background_primary'))
+    }
   }
 
   @LocalBuilder

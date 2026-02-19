@@ -1,9 +1,9 @@
 import { StartButtonWidth } from "../common/constants/Constants"
 import { VersionListView } from "../components/VersionListView"
-import { HOMLState } from "../entryability/AppState"
+import { HOMLState, UISettings } from "../entryability/AppState"
 import { Versions } from "../view/Versions"
 import { LengthMetrics, PersistenceV2 } from "@kit.ArkUI"
-import { Xb_CapsuleButton, Xb_getAppStore } from "xb_components"
+import { Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistence } from "xb_components"
 import { HomlViewModel } from "../core/HomlViewModel"
 
 PersistenceV2.notifyOnError((key, reason, msg) => {
@@ -14,6 +14,7 @@ PersistenceV2.notifyOnError((key, reason, msg) => {
 export struct Home {
 
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
 
   build() {
     RelativeContainer() {
@@ -104,7 +105,7 @@ export struct Home {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('sys.color.background_secondary'))
+    .backgroundColor(this.UIstate.HomeBackground == 'image' ? Color.Transparent : $r('sys.color.background_secondary'))
     .padding({ left: 12,  top: HOMLState.topRectHeight, bottom: HOMLState.bottomRectHeight})
     .bindSheet(HOMLState.showVersions!!, this.VersionsBuilder(), {
       detents: [HOMLState.windowHeight - HOMLState.topRectHeight - 56],

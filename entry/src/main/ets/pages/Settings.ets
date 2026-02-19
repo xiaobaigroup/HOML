@@ -1,12 +1,13 @@
-import { Xb_ActionType, Xb_SettingsItemData } from "xb_components"
+import { Xb_ActionType, Xb_getPersistence, Xb_SettingsItemData } from "xb_components"
 import { SettingsListStartOffset, SettingsTopBlankHeight } from "../common/BreakPoint"
-import { HOMLState, _HOMLState } from "../entryability/AppState"
+import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { LengthMetrics, window } from "@kit.ArkUI"
 
 
 @ComponentV2
 export struct Settings {
 
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
@@ -27,6 +28,9 @@ export struct Settings {
           this.pageStack.clear()
         })
         .onAppear(() => {
+          if (HOMLState.canClearMainPageInfo) {
+            HOMLState.pageStack.clear()
+          }
           if (HOMLState.widthBp >= 2 ) {
             this.pageStack.replacePathByName(HOMLState.currentSettingsPageName, true)
           }
@@ -36,7 +40,7 @@ export struct Settings {
     .width('100%')
     .height('100%')
     .justifyContent(FlexAlign.Start)
-    .backgroundColor($r('sys.color.background_secondary'))
+    .backgroundColor(this.UIstate.HomeBackground == 'image' ? Color.Transparent : $r('sys.color.background_secondary'))
     .padding({ left: HOMLState.leftAvoidWidth, right: HOMLState.rightAvoidWidth })
 
   }
@@ -61,9 +65,11 @@ export struct Settings {
         .backgroundColor(item.id == HOMLState.currentSettingsPageName || HOMLState.widthBp < 2 ? $r('app.color.settings_switch_button_floor') : undefined)
         .onClick(() => {
           if (item.id == 'virtual_control_button') {
+            HOMLState.canClearMainPageInfo = false
             HOMLState.pageStack.pushPathByName(item.id, true)
             return // 无需更新，结束执行
           }
+          HOMLState.canClearMainPageInfo = true
           // 更新侧栏高亮
           HOMLState.currentSettingsPageName = item.id!
           // 根据窗口尺寸决定路由容器

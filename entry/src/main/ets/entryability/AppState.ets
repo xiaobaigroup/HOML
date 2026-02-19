@@ -9,6 +9,7 @@ export class _HOMLState {
   @Trace showUserInfo: boolean = false
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
+  @Trace canClearMainPageInfo: boolean = true
   @Trace currentThemeColor?: ResourceColor = undefined
   @Trace pageStack: NavPathStack = new NavPathStack()
   @Trace currentSettingsPageName: string = 'global_game_options'

@@ -19,6 +19,11 @@
       "name": "virtual_control_button",
       "pageSourceFile": "src/main/ets/view/ControllerLayout.ets",
       "buildFunction": "ControllerLayoutBuilder"
+    },
+    {
+      "name": "image_edit",
+      "pageSourceFile": "src/main/ets/view/ImageEdit.ets",
+      "buildFunction": "ImageEditBuilder"
     }
   ]
 }

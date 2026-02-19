@@ -5,6 +5,7 @@ import { OAuth, Callback, GrantFlow, Result as OAuthResult, AuthenticationExcept
   toJson,
   withQuery, } from './OAuth';
 import { http } from '@kit.NetworkKit';
+import { MinecraftAccount } from '../model/MinecraftAccount';
 
 // 常量
 const SCOPE = "XboxLive.signin offline_access";
@@ -48,7 +49,7 @@ export class MicrosoftService {
   }
 
   private getUhs(response: XBoxLiveAuthenticationResponse | undefined, existingUhs: string | undefined): string {
-    if (response && response.errorCode !== 0) {
+    if (response && response.errorCode && response.errorCode !== 0) {
       throw new XboxAuthorizationException(response.errorCode, response.redirectUrl || '');
     }
 
@@ -59,7 +60,7 @@ export class MicrosoftService {
     if(!response)
       throw new ServerResponseMalformedException('uhs mismatched');
     const uhs = response.DisplayClaims!.xui[0].uhs as string;
-    if (existingUhs !== null && uhs !== existingUhs) {
+    if (existingUhs && uhs !== existingUhs) {
       throw new ServerResponseMalformedException('uhs mismatched');
     }
     return uhs;
@@ -123,7 +124,7 @@ export class MicrosoftService {
       extraData: {
         identityToken: `XBL3.0 x=${uhs};${minecraftXstsResponse!.Token}`
       },
-      header:{ "accept": "application/json", "Authorization": `Bearer ${minecraftXstsResponse!.Token}` } }
+      header:{  "Content-Type": "application/json",  "accept": "application/json", "Authorization": `Bearer ${minecraftXstsResponse!.Token}` } }
     ));
     const minecraftResponse = toJson<MinecraftLoginWithXBoxResponse>(xresponse)
 
@@ -340,8 +341,14 @@ export class MicrosoftSession {
     this.refreshToken = refreshToken;
     this.user = user;
     this.profile = profile;
-}
-
+  }
+  toAccount(){
+    const account =  new MinecraftAccount()
+    account.accessToken = this.accessToken
+    account.profileId = this.profile.id
+    account.username = this.user.username
+    account.session = this
+  }
 
 
 }

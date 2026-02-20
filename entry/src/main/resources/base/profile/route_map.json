@@ -11,6 +11,11 @@
       "buildFunction": "GameOptionsBuilder"
     },
     {
+      "name": "game_folder",
+      "pageSourceFile": "src/main/ets/view/GameFolders.ets",
+      "buildFunction": "GameFoldersBuilder"
+    },
+    {
       "name": "launcher_appearance",
       "pageSourceFile": "src/main/ets/view/Appearance.ets",
       "buildFunction": "AppearanceBuilder"

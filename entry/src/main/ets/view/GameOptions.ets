@@ -1,5 +1,4 @@
-import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType,
-  Xb_makePersistenceSettings,
+import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData,
   Xb_getPersistence} from "xb_components"
 import { GroupDataModel } from "../model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"

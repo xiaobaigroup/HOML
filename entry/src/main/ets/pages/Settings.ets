@@ -72,7 +72,7 @@ export struct Settings {
           HOMLState.canClearMainPageInfo = true
           // 更新侧栏高亮
           HOMLState.currentSettingsPageName = item.id!
-          // 根据窗口尺寸决定路由容器
+          // 根据窗口尺寸决定路由
           if (HOMLState.widthBp < 2) {
             // 使用全局栈（全屏跳转）
             HOMLState.pageStack.pushPathByName(item.id, true)
@@ -92,6 +92,12 @@ export struct Settings {
         id: 'global_game_options',
         label: '全局游戏选项',
         icon: $r('sys.symbol.scenes'),
+        actionType: Xb_ActionType.TEXT
+      },
+      {
+        id: 'game_folder',
+        label: '游戏目录',
+        icon: $r('sys.symbol.folder_fill'),
         actionType: Xb_ActionType.TEXT
       },
       {

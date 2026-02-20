@@ -1,8 +1,9 @@
 import { HOMLState, _HOMLState } from "../entryability/AppState"
 import { ImageEditViewModel } from "./ImageEditViewModel";
 import { Offset, SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI";
-import { Xb_ImageUtils, Xb_ToastUtil } from "xb_components";
+import { EventHub, Xb_ImageUtils, Xb_ToastUtil } from "xb_components";
 import { fileIo as fs } from "@kit.CoreFileKit";
+import { EventKey } from "../common/EventKey";
 
 @Builder
 export function ImageEditBuilder(name: string, param: Object) {
@@ -231,15 +232,20 @@ struct ImageEdit {
       Button('保存')
         .onClick(async () => {
           try {
+            const isPortrait = this.nowEditIndex === 0;  // 0=竖屏, 1=横屏
             const result = await this.viewmodel.cropAndSave(
               _HOMLState.context,
               _HOMLState.windowWidth_px,
-              _HOMLState.windowHeight_px
+              _HOMLState.windowHeight_px,
+              isPortrait
             )
-            console.info('保存成功:', result.portraitPath, result.landscapePath)
-            Xb_ToastUtil.showToast({ message: '背景保存成功' })
+            console.info('ImageEdit 保存成功:', result.path)
+            EventHub.sendEvent(EventKey.CustomBackground)
+            Xb_ToastUtil.showToast({
+              message: result.isPortrait ? '竖屏背景保存成功' : '横屏背景保存成功'
+            })
           } catch (error) {
-            console.error('保存失败:', JSON.stringify(error))
+            console.error('ImageEdit 保存失败:', JSON.stringify(error))
             Xb_ToastUtil.showToast({ message: '保存失败' })
           }
         })

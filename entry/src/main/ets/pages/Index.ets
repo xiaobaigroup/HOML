@@ -1,5 +1,4 @@
 import { EventHub, Xb_ColorModeManager, Xb_getAppStore, Xb_getPersistence,
-  Xb_getPersistenceByName,
   Xb_SwitchButton,
   Xb_ThemeColorUtil} from 'xb_components';
 import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth, WindowLogoTextMargin,
@@ -10,7 +9,6 @@ import { HomlViewModel } from '../core/HomlViewModel';
 import { HOMLState, UISettings, _HOMLState } from '../entryability/AppState';
 import { Home } from './Home';
 import { Settings } from './Settings';
-import { fileUri } from '@kit.CoreFileKit';
 
 
 @Entry
@@ -18,7 +16,6 @@ import { fileUri } from '@kit.CoreFileKit';
 struct Index {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel,()=> new HomlViewModel())!
   @Local UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
-  @Local mainBackgroundImage: string = ''
 
   private panOptionL: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Left })
   private panOptionR: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Right })
@@ -55,7 +52,7 @@ struct Index {
   Main() {
     Stack() {
       // 背景图
-      Image(this.mainBackgroundImage)
+      Image(HOMLState.mainBackgroundImage)
         .width('100%')
         .height('100%')
       if (HOMLState.mainCurrentTab == 0) {
@@ -159,11 +156,14 @@ struct Index {
       }
       Xb_ColorModeManager.setThemeColorMode(_HOMLState.context, darkMode)
     })
-
+    EventHub.on(EventKey.CustomBackground, () => {
+      HOMLState.getBackgroundImage()
+    })
   }
 
   // 发送事件
   sendEvent() {
+    // 初始化深色模式
     EventHub.sendEvent(EventKey.SwitchDarkMode)
   }
 
@@ -177,12 +177,6 @@ struct Index {
     if (this.UIstate.ThemeColor !== 'default') {
       HOMLState.currentThemeColor = Xb_ThemeColorUtil.getThemeColor(`${this.UIstate.ThemeColor}AppTheme`)
     }
-    // 初始化背景
-    if (this.UIstate.HomeBackground == 'image') {
-      const filePath = _HOMLState.context.filesDir +
-        (_HOMLState.windowWidth_px < _HOMLState.windowHeight_px ? '/background_portrait.jpg' : 'background_landscape.jpg');
-      this.mainBackgroundImage = fileUri.getUriFromPath(filePath)
-    }
 
   }
 
@@ -190,5 +184,7 @@ struct Index {
   unregister() {
     EventHub.off(EventKey.SwitchDarkMode)
   }
+
+
 
 }

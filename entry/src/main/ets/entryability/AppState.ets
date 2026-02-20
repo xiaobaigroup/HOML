@@ -1,5 +1,6 @@
 import { window } from "@kit.ArkUI";
 import { common } from "@kit.AbilityKit";
+import { fileUri } from "@kit.CoreFileKit";
 
 @ObservedV2
 export class _HOMLState {
@@ -10,6 +11,7 @@ export class _HOMLState {
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
   @Trace canClearMainPageInfo: boolean = true
+  @Trace mainBackgroundImage: string = ''
   @Trace currentThemeColor?: ResourceColor = undefined
   @Trace pageStack: NavPathStack = new NavPathStack()
   @Trace currentSettingsPageName: string = 'global_game_options'
@@ -44,6 +46,14 @@ export class _HOMLState {
   @Trace heightBp: number = 0
   /** @description 窗口模式 true为PC窗口模式 false为普通窗口模式 */
   @Trace windowMode: boolean = false
+
+  @Monitor('widthBp')
+  getBackgroundImage() {
+    const filePath = _HOMLState.context.filesDir +
+      ((HOMLState.windowWidth < HOMLState.windowHeight) ? '/background_portrait.jpg' : '/background_landscape.jpg');
+    console.debug(`getBackgroundImage 切换背景图 ${filePath}`)
+    this.mainBackgroundImage = fileUri.getUriFromPath(filePath)
+  }
 
 }
 

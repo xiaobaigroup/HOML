@@ -7,6 +7,7 @@ import { EventKey } from '../common/EventKey';
 import { getColorWithTransparency } from '../common/util/ColorWithTransparency';
 import { HomlViewModel } from '../core/HomlViewModel';
 import { HOMLState, UISettings, _HOMLState } from '../entryability/AppState';
+import { User } from '../view/UserPrivacy';
 import { Home } from './Home';
 import { Settings } from './Settings';
 
@@ -144,6 +145,31 @@ struct Index {
           }
         }),
     )
+    .bindSheet(this.UIstate.FirstStart!!, this.UserPriBuilder(), {
+      detents: [560],
+      showClose: false,
+      backgroundColor: $r('sys.color.background_secondary'),
+      preferType: SheetType.CENTER,
+      // blurStyle: BlurStyle.Thin,
+      uiContext: _HOMLState.UIContext,
+      mode: SheetMode.OVERLAY,
+      onWillDismiss: ((DismissSheetAction: DismissSheetAction) => {
+        if (!this.UIstate.FirstStart) {
+          DismissSheetAction.dismiss()
+        }
+      }),
+      onWillAppear: () => {
+        HOMLState.showBackgroundBlur = true
+      },
+      onWillDisappear: () => {
+        HOMLState.showBackgroundBlur = false
+      },
+    })
+  }
+
+  @Builder
+  UserPriBuilder() {
+    User()
   }
 
   // 注册事件
@@ -183,6 +209,7 @@ struct Index {
   // 注销事件
   unregister() {
     EventHub.off(EventKey.SwitchDarkMode)
+    EventHub.off(EventKey.CustomBackground)
   }
 
 

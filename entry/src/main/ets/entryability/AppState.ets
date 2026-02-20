@@ -67,6 +67,8 @@ export class UISettings {
   @Trace RandomTheme: boolean = false
   // 主页背景
   @Trace HomeBackground: 'image' | 'pure' = 'pure'
+  // 首次打开应用
+  @Trace FirstStart: boolean = true
 }
 
 

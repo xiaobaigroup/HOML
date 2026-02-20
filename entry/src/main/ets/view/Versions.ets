@@ -1,4 +1,7 @@
-import { Xb_ActionType, Xb_getAppStore, Xb_getPersistence, Xb_SettingsItem, Xb_SettingsItemData } from "xb_components"
+import { Xb_ActionType,
+  Xb_CircleButton,
+  Xb_getAppStore, Xb_getPersistence, Xb_SettingsItem, Xb_SettingsItemData,
+  Xb_ToastUtil } from "xb_components"
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency"
 import { VersionListView } from "../components/VersionListView"
 import { HomlViewModel } from "../core/HomlViewModel"
@@ -16,58 +19,87 @@ export struct Versions {
 
   build() {
     Navigation(this.pageStack) {
-      Column({ space: 10 }) {
-        // 标题
-        Row({ space: 10 }) {
-          SymbolGlyph($r(`sys.symbol.${this.showFolderSelect ? 'arrowtriangle_up_fill' : 'arrowtriangle_down_fill'}`))
-            .fontSize(14)
-          Column({ space: 2 }) {
-            Text('默认文件夹')
-              .fontWeight(FontWeight.Bold)
-              .fontSize(20)
-            Text(this.viewmodel.homeDir)
-              .fontSize(16)
+      Stack() {
+        Column({ space: 10 }) {
+          // 标题
+          Row({ space: 10 }) {
+            SymbolGlyph($r(`sys.symbol.${this.showFolderSelect ? 'arrowtriangle_up_fill' : 'arrowtriangle_down_fill'}`))
+              .fontSize(14)
+            Column({ space: 2 }) {
+              Text('默认文件夹')
+                .fontWeight(FontWeight.Bold)
+                .fontSize(20)
+              Text(this.viewmodel.homeDir)
+                .fontSize(16)
+            }
+            .alignItems(HorizontalAlign.Start)
           }
-          .alignItems(HorizontalAlign.Start)
+          .width('100%')
+          .margin({ top: 12 })
+          .padding({ left: 16, right: 12 })
+          .justifyContent(FlexAlign.Start)
+          .bindContextMenu(this.showFolderSelect!!, this.FolderSelect(), {
+            placement: Placement.Bottom,
+            backgroundColor: Color.Transparent,
+            backgroundBlurStyle: BlurStyle.Thin
+          })
+          .onClick(() => {
+            this.showFolderSelect = !this.showFolderSelect
+          })
+          // 搜索框
+          Search({
+            placeholder: '搜索版本...'
+          })
+            .margin({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
+            .onSubmit((data) => {
+
+            })
+          // 版本列表
+          VersionListView({
+            items: this.viewmodel.versions,
+            contentEndOffset: 100 + HOMLState.bottomRectHeight,
+            itemBackgroundColor: HOMLState.currentThemeColor || $r('app.color.blue'),
+            onItemClick: (data) => {
+              if (HOMLState.widthBp < 2) {
+                this.pageStack.pushPathByName('version_detail', data, true)
+              } else {
+                this.pageStack.replacePathByName('version_detail', data, true)
+              }
+            }
+          })
+            .padding({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
         }
         .width('100%')
-        .margin({ top: 12 })
-        .padding({ left: 16, right: 12 })
-        .justifyContent(FlexAlign.Start)
-        .bindContextMenu(this.showFolderSelect!!, this.FolderSelect(), {
-          placement: Placement.Bottom,
-          backgroundColor: Color.Transparent,
-          backgroundBlurStyle: BlurStyle.Thin
-        })
-        .onClick(() => {
-          this.showFolderSelect = !this.showFolderSelect
-          // this.viewmodel.loadZip()
-        })
-        // 搜索框
-        Search({
-          placeholder: '搜索版本...'
-        })
-          .margin({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
-          .onSubmit((data) => {
-
-          })
-        // 版本列表
-        VersionListView({
-          items: this.viewmodel.versions,
-          contentEndOffset: 100 + HOMLState.bottomRectHeight,
-          itemBackgroundColor: HOMLState.currentThemeColor || $r('app.color.blue'),
-          onItemClick: (data) => {
-            if (HOMLState.widthBp < 2) {
-              this.pageStack.pushPathByName('version_detail', data, true)
-            } else {
-              this.pageStack.replacePathByName('version_detail', data, true)
+        .height('100%')
+        // 工具
+        Row({ space: 5 }) {
+          Xb_CircleButton({
+            icon: $r('sys.symbol.text_and_arrow_down'),
+            iconBackgroundColor: Color.Transparent,
+            iconColor: $r('sys.color.font_primary'),
+            theBackgroundColor: Color.Transparent,
+            onCheck: () => {
+              Xb_ToastUtil.showToast({ message: '开发中' })
             }
-          }
-        })
-          .padding({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
+          })
+          Xb_CircleButton({
+            icon: $r('sys.symbol.plus_circle'),
+            iconBackgroundColor: Color.Transparent,
+            iconColor: $r('sys.color.font_primary'),
+            theBackgroundColor: Color.Transparent,
+            onCheck: () => {
+              this.viewmodel.loadZip()
+            }
+          })
+        }
+        .height(48)
+        .borderRadius(25)
+        .margin({ bottom: HOMLState.bottomRectHeight })
+        .backgroundColor($r('sys.color.ohos_id_color_hover'))
       }
       .width('100%')
       .height('100%')
+      .alignContent(Alignment.Bottom)
     }
     .width('100%')
     .navBarWidth(330)

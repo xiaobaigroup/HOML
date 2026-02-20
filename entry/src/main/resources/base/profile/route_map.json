@@ -29,6 +29,11 @@
       "name": "image_edit",
       "pageSourceFile": "src/main/ets/view/ImageEdit.ets",
       "buildFunction": "ImageEditBuilder"
+    },
+    {
+      "name": "privacy",
+      "pageSourceFile": "src/main/ets/view/UserPrivacy.ets",
+      "buildFunction": "PrivacyPageBuilder"
     }
   ]
 }

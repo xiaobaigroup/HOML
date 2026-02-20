@@ -1,10 +1,12 @@
-import { Xb_ActionType, Xb_getPersistence,
-  Xb_RadioGroupData} from "xb_components"
+import { Xb_ActionType, Xb_FileUtils,
+  Xb_getAppStore,
+  Xb_getPersistence, Xb_GlobalContext, Xb_RadioGroupData} from "xb_components"
 import { GroupDataModel } from "../model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"
 import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { HomeDirectoryType } from "../model/GameProfile"
+import { picker } from "@kit.CoreFileKit"
 
 @Builder
 export function GameFoldersBuilder(name: string, param: Object) {
@@ -15,7 +17,7 @@ export function GameFoldersBuilder(name: string, param: Object) {
 struct GameFolders {
 
   @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
-  @Local viewModel: HomlViewModel = new HomlViewModel()
+  @Local viewModel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
 
   build() {
     NavDestination() {
@@ -42,7 +44,7 @@ struct GameFolders {
             value: HomeDirectoryType.Sandbox,
             radioGroup: folderRadioGroup,
             iconColor: HOMLState.currentThemeColor,
-            content: this.viewModel.homeDir,
+            content: this.viewModel.gameProfile.homeType == HomeDirectoryType.Sandbox ? this.viewModel.homeDir : "",
             actionType: Xb_ActionType.RADIO,
             onChange: (v) => {
               this.changeGameFolder(v)
@@ -53,7 +55,7 @@ struct GameFolders {
             value: HomeDirectoryType.Download,
             radioGroup: folderRadioGroup,
             iconColor: HOMLState.currentThemeColor,
-            content: '',
+            content: this.viewModel.gameProfile.homeType == HomeDirectoryType.Download ? this.viewModel.homeDir : "",
             actionType: Xb_ActionType.RADIO,
             onChange: (v) => {
               this.changeGameFolder(v)
@@ -79,7 +81,11 @@ struct GameFolders {
             label: '选择目录',
             iconColor: HOMLState.currentThemeColor,
             actionType: Xb_ActionType.JUMP,
-            onChange: (v) => {
+            onChange: async (v) => {
+              const dir = await Xb_FileUtils.selectDir()
+              if (dir) {
+                this.viewModel.gameProfile.customHomeDir
+              }
               // TODO 拉起选择弹窗
             }
           }
@@ -91,6 +97,7 @@ struct GameFolders {
   changeGameFolder(v: number | boolean | ResourceStr) {
     const value = v as HomeDirectoryType
     this.viewModel.gameProfile.homeType = value
+    this.viewModel.changeHome()
   }
 
 

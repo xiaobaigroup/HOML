@@ -8,7 +8,7 @@ import { MinecraftVersion } from "../model/MinecraftVersion";
 import { VersionSetting } from "../model/VersionSetting";
 import { jvmLauncher } from "./JVMLauncher";
 import { MinecraftAccount } from "../model/MinecraftAccount";
-import { GameProfile } from "../model/GameProfile";
+import { GameProfile, HomeDirectoryType } from "../model/GameProfile";
 import { MicrosoftService } from "../auth/MicrosoftService";
 import { OAuthServer } from "../auth/OAuthServer";
 
@@ -35,17 +35,31 @@ export class HomlViewModel {
     }
 
   }
-  async initHome(){
-    const context = Xb_GlobalContext.getContext()
-    const sanbox = context.filesDir + "/HOML/"
-    if(!await fileIo.access(sanbox)){
-      await fileIo.mkdir(sanbox)
+  async changeHome(){
+    let homeDir = ""
+    if (this.gameProfile.homeType == HomeDirectoryType.Sandbox){
+      const context = Xb_GlobalContext.getContext()
+      homeDir = context.filesDir + "/HOML/"
     }
-    this.homeDir  = sanbox;
-    this.gameRootDir = this.homeDir + ".minecraft/"
+    if (this.gameProfile.homeType == HomeDirectoryType.Download){
+      homeDir = Xb_GlobalContext.downloadDir + "/HOML/"
+    }
+    if(this.gameProfile.customHomeDir == "" && this.gameProfile.homeType == HomeDirectoryType.Custom)
+      return;
+    if (this.gameProfile.homeType == HomeDirectoryType.Custom){
+      homeDir = this.gameProfile.customHomeDir + "/HOML/"
+    }
+    if (!await fileIo.access(homeDir)){
+      await fileIo.mkdir(homeDir)
+    }
+    this.homeDir  = homeDir;
+    this.gameRootDir = homeDir + ".minecraft/"
     fixLibs(this.gameRootDir)
     createOfflineAccount(this.gameProfile.lastAccount, this.homeDir)
     this.loadVersions()
+  }
+  async initHome(){
+    this.changeHome()
   }
 
   async loadVersions(){
@@ -63,10 +77,9 @@ export class HomlViewModel {
           }
         }
       }
-      this.versions = result;
     } catch (error) {
-
     }
+    this.versions = result;
   }
 
   async loadZip(){

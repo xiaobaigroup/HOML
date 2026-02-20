@@ -178,6 +178,7 @@ export struct Versions {
   changeGameFolder(v: number | boolean | ResourceStr) {
     const value = v as HomeDirectoryType
     this.viewmodel.gameProfile.homeType = value
+    this.viewmodel.changeHome()
   }
 
 }

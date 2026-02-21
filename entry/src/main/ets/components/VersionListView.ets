@@ -27,7 +27,7 @@ export struct VersionListView {
           getColorWithTransparency(this.getUIContext().getHostContext()!, this.itemBackgroundColor, 0.2) : undefined)
         .padding({ left: this.smallType ? 6 : 12, right: this.smallType ? 6 : 12 })
         .onClick(() => {
-          this.viewmodel.current = item
+          this.viewmodel.selectVersion(item)
           this.onItemClick(item)
         })
       }, (item: MinecraftVersion) => `${item.id}`)

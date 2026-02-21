@@ -26,6 +26,11 @@ export class HomlViewModel {
 
   ms: MicrosoftService = new MicrosoftService(new OAuthServer())
 
+  selectVersion(version: MinecraftVersion){
+    this.current = version;
+    this.gameProfile.lastVersion = version.id
+  }
+
   async toLogin(){
     try {
       await this.ms.authenticate()
@@ -48,6 +53,7 @@ export class HomlViewModel {
       return;
     if (this.gameProfile.homeType == HomeDirectoryType.Custom){
       homeDir = this.gameProfile.customHomeDir + "/"
+      await Xb_FileUtils.activatePermissionDir(this.gameProfile.customHomeDir)
     }
     try {
       if (!await fileIo.access(homeDir)){
@@ -62,7 +68,11 @@ export class HomlViewModel {
     this.gameRootDir = homeDir + ".minecraft/"
     fixLibs(this.gameRootDir)
     createOfflineAccount(this.gameProfile.lastAccount, this.homeDir)
-    this.loadVersions()
+    await this.loadVersions()
+    const version = this.versions.find(d=>d.id == this.gameProfile.lastVersion)
+    if (version){
+      this.current = version
+    }
   }
   async initHome(){
     this.changeHome()
@@ -116,7 +126,7 @@ export class HomlViewModel {
 	}
   launch(){
     const id = this.current!.id
-    const gameMenuState =  Xb_getPersistence(Xb_GameMenuState)
+    const gameMenuState = Xb_getPersistence(Xb_GameMenuState)
     jvmLauncher.launch(Xb_GlobalContext.getContext(),
       "xiaobai",
       {id: this.current!.id, homeDir: this.homeDir, gameRootDir: this.gameRootDir, settings: getVersionSetting(id),arguments:[]},

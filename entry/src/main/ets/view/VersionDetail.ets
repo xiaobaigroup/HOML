@@ -1,5 +1,4 @@
-import { Xb_ActionType, Xb_CapsuleButton,
-  Xb_getPersistenceByName } from "xb_components"
+import { Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName } from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../model/VersionFunctionModel"
@@ -8,6 +7,7 @@ import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { SettingsListView } from "../components/SettingsListView"
 import { GroupDataModel } from "../model/GroupDataModel"
+import { HomlViewModel } from "../core/HomlViewModel"
 
 
 @Builder
@@ -19,6 +19,7 @@ export function VersionDetailBuilder(name: string, param: Object) {
 struct VersionDetail {
 
   @Require @Param currentVersion: MinecraftVersion
+  @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
   @Local versionSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, this.currentVersion.id,()=> new VersionSetting())!
 
   build() {
@@ -49,6 +50,7 @@ struct VersionDetail {
                   iconColor: item?.iconColor || $r('app.color.blue'),
                   theBackgroundColor: item?.backgroundColor || $r('sys.color.button_background_color_transparent'),
                   onCheck: () => {
+                    item.onAction()
                   },
                 })
               }
@@ -186,7 +188,10 @@ struct VersionDetail {
         iconColor: $r('sys.color.font_on_primary'),
         backgroundColor: $r('app.color.green'),
         onAction: async () => {
-
+          this.viewmodel.selectVersion(this.currentVersion)
+          this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
+            console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
+          })
         }
       },
       {

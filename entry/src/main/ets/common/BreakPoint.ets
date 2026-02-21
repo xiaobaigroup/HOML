@@ -53,3 +53,11 @@ export const SettingsListStartOffset = Xb_BreakpointFunction2D<number>({
   ['lg']: {['hsm']: 79, ['hmd']: 79, ['hlg']: 79 },
   ['xl']: {['hsm']: 79, ['hmd']: 79, ['hlg']: 79 },
 })
+
+export const WelcomePageWidth = Xb_BreakpointFunction<Length>({
+  ['sm']: '100%', ['md']: 480, ['lg']: 480, ['xl']: 480
+})
+
+export const WelcomePageHeight = Xb_BreakpointFunction<Length>({
+  ['sm']: '85%', ['md']: 560, ['lg']: 560, ['xl']: 560
+})

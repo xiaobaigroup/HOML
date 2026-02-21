@@ -1,21 +1,48 @@
 import { Xb_getPersistence, Xb_GetResourceString, Xb_PriUserComWeb } from "xb_components"
-import { UISettings } from "../entryability/AppState"
+import { HOMLState, UISettings } from "../entryability/AppState"
 
 
 @Builder
 export function UserPageBuilder(name: string) {
-  User()
+  UserNavb()
+}
+
+@ComponentV2
+struct UserNavb {
+
+  @Local needTopMargin: boolean = false
+  @Local pageStack: NavPathStack = new NavPathStack()
+
+  build() {
+    NavDestination() {
+      User({
+        needTopMargin: this.needTopMargin,
+        normalPageStack: this.pageStack
+      })
+    }
+    .hideBackButton(true)
+    .hideTitleBar(true)
+    .onReady((ctx) => {
+      this.pageStack = ctx.pathStack
+      const param = ctx.pathInfo.param as boolean
+      if (param) {
+        this.needTopMargin = param
+      }
+    })
+  }
+
 }
 
 @ComponentV2
 export struct User {
 
   @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
+  @Param normalPageStack: NavPathStack = new NavPathStack()
+  @Param needTopMargin: boolean = false
 
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
-    // 欢迎页
     Navigation(this.pageStack) {
       this.Content()
     }
@@ -36,22 +63,29 @@ export struct User {
         nextPage: 'privacy',
         onRightCheck: this.UIstate.FirstStart ? () => {
           this.pageStack.pushPathByName('privacy', false, true)
-        } : undefined,
-        onLeftCheck: undefined,
+        } : () => {
+          this.normalPageStack.pushPathByName('privacy', this.needTopMargin, true)
+        },
+        onLeftCheck: this.UIstate.FirstStart ? undefined : () => {
+          this.normalPageStack.pop(true)
+        },
         priuserPageInfos: this.pageStack,
         currentLanguage: 'zh-CN',
         docSrc: $rawfile('html/user_agreement.html'),
       })
       Row() {
         Text('用户协议')
-          .fontWeight(FontWeight.Regular)
+          .fontSize(18)
+          .fontWeight(FontWeight.Bold)
       }
-      .height(56)
+      .height(27 +HOMLState.topRectHeight)
       .width('100%')
       .justifyContent(FlexAlign.Center)
       .backgroundColor($r('sys.color.background_secondary'))
+      .padding({ top: this.needTopMargin ? HOMLState.topRectHeight : undefined })
     }
     .alignContent(Alignment.Top)
+    .backgroundColor($r('sys.color.background_secondary'))
   }
 
 }
@@ -65,40 +99,93 @@ export function PrivacyPageBuilder(name: string) {
 @ComponentV2
 struct Privacy {
 
+  @Local needTopMargin: boolean = false
   @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
     NavDestination() {
-      Stack() {
-        Xb_PriUserComWeb({
-          isEnd: !this.UIstate.FirstStart,
-          appName: Xb_GetResourceString($r('app.string.EntryAbility_label'), this),
-          needAccount: true,
-          needOpenSource: false,
-          onLeftCheck: undefined,
-          onRightCheck: this.UIstate.FirstStart ? () => {
-            this.UIstate.FirstStart = false
-          } : undefined,
-          isWelcomeStack: this.UIstate.FirstStart,
-          priuserPageInfos: this.pageStack,
-          currentLanguage: 'zh-CN',
-          docSrc: $rawfile('html/privacy.html'),
-        })
-        Row() {
-          Text('隐私声明')
-            .fontWeight(FontWeight.Regular)
-        }
-        .height(56)
-        .width('100%')
-        .justifyContent(FlexAlign.Center)
-        .backgroundColor($r('sys.color.background_secondary'))
-      }
-      .alignContent(Alignment.Top)
+      Xb_PriUserComWeb({
+        isEnd: !this.UIstate.FirstStart,
+        appName: Xb_GetResourceString($r('app.string.EntryAbility_label'), this),
+        needAccount: true,
+        needOpenSource: false,
+        onLeftCheck: undefined,
+        onRightCheck: this.UIstate.FirstStart ? () => {
+          this.pageStack.pushPathByName('welcome', false, true)
+        } : () => {
+          this.pageStack.clear()
+        },
+        isWelcomeStack: this.UIstate.FirstStart,
+        priuserPageInfos: this.pageStack,
+        currentLanguage: 'zh-CN',
+        docSrc: $rawfile('html/privacy.html'),
+      })
     }
+    .title('隐私声明')
     .width('100%')
     .height('100%')
-    .hideToolBar(true)
+    .padding({ top: this.needTopMargin ? 21 : 0 })
+    .onReady((ctx) => {
+      this.pageStack = ctx.pathStack
+      const param = ctx.pathInfo.param as boolean
+      if (param) {
+        this.needTopMargin = param
+      }
+    })
+  }
+
+}
+
+@Builder
+export function WelcomePageBuilder(name: string) {
+  Welcome()
+}
+
+@ComponentV2
+struct Welcome {
+
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
+  private pageStack: NavPathStack = new NavPathStack()
+
+  build() {
+    NavDestination() {
+      Column() {
+        Image($r('app.media.startIcon'))
+          .width(79)
+          .height(79)
+          .margin({ bottom: 36 })
+        Text('欢迎来到 Homo Minecraft Launcher')
+          .fontSize(18)
+        Text('为了更好的使用体验，请前往设置游戏目录')
+          .fontSize(18)
+        Blank()
+        Row({ space: 12 }) {
+          Button('稍后')
+            .width('48%')
+            .backgroundColor(HOMLState.currentThemeColor)
+            .onClick(() => {
+              this.UIstate.FirstStart = false
+            })
+          Button('立即前往')
+            .width('48%')
+            .backgroundColor(HOMLState.currentThemeColor)
+            .onClick(() => {
+              this.UIstate.FirstStart = false
+              HOMLState.mainCurrentTab = 1
+              HOMLState.needPush = true
+            })
+        }
+        .width('90%')
+        .padding({ top: 12, bottom: 20 })
+      }
+      .width('100%')
+      .height('100%')
+      .alignItems(HorizontalAlign.Center)
+    }
+    .title('欢迎')
+    .width('100%')
+    .height('100%')
     .onReady((ctx) => {
       this.pageStack = ctx.pathStack
     })

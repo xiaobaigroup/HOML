@@ -7,6 +7,7 @@ export class _HOMLState {
 
   // -- 界面 --
   @Trace mainCurrentTab: number = 0
+  @Trace needPush: boolean = false
   @Trace showUserInfo: boolean = false
   @Trace showVersions: boolean = false
   @Trace showBackgroundBlur: boolean = false
@@ -69,6 +70,10 @@ export class UISettings {
   @Trace HomeBackground: 'image' | 'pure' = 'pure'
   // 首次打开应用
   @Trace FirstStart: boolean = true
+
+  constructor() {
+    console.info('AppState-bindSheet', `UISettings 构造函数被调用, FirstStart: ${this.FirstStart}`)
+  }
 }
 
 

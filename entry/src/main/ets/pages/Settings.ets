@@ -31,6 +31,11 @@ export struct Settings {
           if (HOMLState.canClearMainPageInfo) {
             HOMLState.pageStack.clear()
           }
+          if (HOMLState.needPush) {
+            // 跳转至 游戏目录管理
+            HOMLState.currentSettingsPageName = 'game_folder'
+            HOMLState.needPush = false
+          }
           if (HOMLState.widthBp >= 2 ) {
             this.pageStack.replacePathByName(HOMLState.currentSettingsPageName, true)
           }
@@ -75,10 +80,10 @@ export struct Settings {
           // 根据窗口尺寸决定路由
           if (HOMLState.widthBp < 2) {
             // 使用全局栈（全屏跳转）
-            HOMLState.pageStack.pushPathByName(item.id, true)
+            HOMLState.pageStack.pushPathByName(item.id, true, false)
           } else {
             // 使用分栏内部栈（右侧刷新）
-            this.pageStack.replacePathByName(item.id, true)
+            this.pageStack.replacePathByName(item.id, false, true)
           }
         })
       })
@@ -110,6 +115,12 @@ export struct Settings {
         id: 'virtual_control_button',
         label: '虚拟按键配置',
         icon: $r('sys.symbol.gamecontroller_fill'),
+        actionType: Xb_ActionType.TEXT
+      },
+      {
+        id: 'user_agreement',
+        label: '用户协议和隐私声明',
+        icon: $r('sys.symbol.exclamationmark_shield_fill'),
         actionType: Xb_ActionType.TEXT
       },
       {

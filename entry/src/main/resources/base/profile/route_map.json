@@ -34,6 +34,16 @@
       "name": "privacy",
       "pageSourceFile": "src/main/ets/view/UserPrivacy.ets",
       "buildFunction": "PrivacyPageBuilder"
+    },
+    {
+      "name": "user_agreement",
+      "pageSourceFile": "src/main/ets/view/UserPrivacy.ets",
+      "buildFunction": "UserPageBuilder"
+    },
+    {
+      "name": "welcome",
+      "pageSourceFile": "src/main/ets/view/UserPrivacy.ets",
+      "buildFunction": "WelcomePageBuilder"
     }
   ]
 }

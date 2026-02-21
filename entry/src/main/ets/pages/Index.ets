@@ -1,7 +1,10 @@
 import { EventHub, Xb_ColorModeManager, Xb_getAppStore, Xb_getPersistence,
   Xb_SwitchButton,
   Xb_ThemeColorUtil} from 'xb_components';
-import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth, WindowLogoTextMargin,
+import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth,
+  WelcomePageHeight,
+  WelcomePageWidth,
+  WindowLogoTextMargin,
   WindowMainTabButtonMargin } from '../common/BreakPoint';
 import { EventKey } from '../common/EventKey';
 import { getColorWithTransparency } from '../common/util/ColorWithTransparency';
@@ -93,22 +96,27 @@ struct Index {
           top: { anchor: "__container__", align: VerticalAlign.Top }
         })
         // 自定义窗口控制区
-        if (HOMLState.windowMode) {
-          Row() {
-
-          }.width(120)
-          .height(56)
-          .borderColor(Color.Black)
-          .borderWidth(2)
-          .id('window_control')
-          .alignRules({
-            right: { anchor: '__container__', align: HorizontalAlign.End },
-            top: { anchor: '__container__', align: VerticalAlign.Top }
-          })
-        }
+        // if (HOMLState.windowMode) {
+        //   Row() {
+        //
+        //   }.width(120)
+        //   .height(56)
+        //   .borderColor(Color.Black)
+        //   .borderWidth(2)
+        //   .id('window_control')
+        //   .alignRules({
+        //     right: { anchor: '__container__', align: HorizontalAlign.End },
+        //     top: { anchor: '__container__', align: VerticalAlign.Top }
+        //   })
+        // }
       }
       .height(56)
       .margin({ left: 12, top: HOMLState.topRectHeight })
+
+      if (this.UIstate.FirstStart) {
+        this.UserPriBuilder()
+      }
+
     }
     .height('100%')
     .align(Alignment.Top)
@@ -145,31 +153,41 @@ struct Index {
           }
         }),
     )
-    .bindSheet(this.UIstate.FirstStart!!, this.UserPriBuilder(), {
-      detents: [560],
-      showClose: false,
-      backgroundColor: $r('sys.color.background_secondary'),
-      preferType: SheetType.CENTER,
-      // blurStyle: BlurStyle.Thin,
-      uiContext: _HOMLState.UIContext,
-      mode: SheetMode.OVERLAY,
-      onWillDismiss: ((DismissSheetAction: DismissSheetAction) => {
-        if (!this.UIstate.FirstStart) {
-          DismissSheetAction.dismiss()
-        }
-      }),
-      onWillAppear: () => {
-        HOMLState.showBackgroundBlur = true
-      },
-      onWillDisappear: () => {
-        HOMLState.showBackgroundBlur = false
-      },
-    })
   }
 
-  @Builder
+  @LocalBuilder
   UserPriBuilder() {
-    User()
+    Column() {
+      Column() {
+        User()
+      }
+      .clip(true)
+      .borderRadius({
+        topLeft: 32,
+        topRight: 32,
+        bottomLeft: HOMLState.widthBp > 1 ? 32 : 0,
+        bottomRight: HOMLState.widthBp > 1 ? 32 : 0
+      })
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
+      .width(WelcomePageWidth(HOMLState.widthBp))
+      .height(WelcomePageHeight(HOMLState.widthBp))
+      .onAppear(() => {
+        console.info('Index-bindSheet', 'UserPriBuilder Column onAppear 被调用')
+      })
+      .onAttach(() => {
+        console.info('Index-bindSheet', 'UserPriBuilder Column onAttach 半模态组件已挂载上树')
+      })
+      .onDetach(() => {
+        console.info('Index-bindSheet', 'UserPriBuilder Column onDetach 半模态组件已卸载')
+      })
+    }
+    .clip(true)
+    .height('100%').width('100%')
+    .alignItems(HorizontalAlign.Center)
+    .justifyContent(HOMLState.widthBp > 1 ? FlexAlign.Center : FlexAlign.End)
+    .backgroundBlurStyle(BlurStyle.Thin,
+      { colorMode: ThemeColorMode.SYSTEM, adaptiveColor: AdaptiveColor.DEFAULT, scale: 0.3 })
   }
 
   // 注册事件
@@ -211,7 +229,5 @@ struct Index {
     EventHub.off(EventKey.SwitchDarkMode)
     EventHub.off(EventKey.CustomBackground)
   }
-
-
 
 }

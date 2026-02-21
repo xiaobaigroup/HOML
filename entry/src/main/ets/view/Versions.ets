@@ -1,5 +1,6 @@
 import { Xb_ActionType,
   Xb_CircleButton,
+  Xb_FileUtils,
   Xb_getAppStore, Xb_getPersistence, Xb_SettingsItem, Xb_SettingsItemData,
   Xb_ToastUtil } from "xb_components"
 import { getColorWithTransparency } from "../common/util/ColorWithTransparency"
@@ -132,6 +133,7 @@ export struct Versions {
               this.showFolderSelect = false
               HOMLState.showVersions = false
               HOMLState.mainCurrentTab = 1
+              HOMLState.needPush = true
             }
           },
           themeType: this.UIstate.DarkMode as number,
@@ -167,9 +169,15 @@ export struct Versions {
         content: this.viewmodel.gameProfile.customHomeDir, // 自定义目录地址
         value: HomeDirectoryType.Custom,
         actionType: Xb_ActionType.TEXT,
-        onChange: (v) => {
+        onChange: async (v) => {
           this.changeGameFolder(v)
-          // TODO 检查是否存在自定义目录，并拉起
+          if (this.viewmodel.gameProfile.customHomeDir) return
+          const dir = await Xb_FileUtils.selectDir()
+          if (dir) {
+            this.viewmodel.gameProfile.customHomeDir = dir
+            Xb_FileUtils.persistPermissionDir(dir)
+            this.viewmodel.changeHome()
+          }
         }
       }
     ]

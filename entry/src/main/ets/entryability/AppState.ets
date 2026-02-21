@@ -72,7 +72,6 @@ export class UISettings {
   @Trace FirstStart: boolean = true
 
   constructor() {
-    console.info('AppState-bindSheet', `UISettings 构造函数被调用, FirstStart: ${this.FirstStart}`)
   }
 }
 

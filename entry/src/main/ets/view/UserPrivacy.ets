@@ -145,7 +145,7 @@ export function WelcomePageBuilder(name: string) {
 @ComponentV2
 struct Welcome {
 
-  @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
+  @Local UIstate: UISettings = Xb_getPersistence(UISettings, () => new UISettings())!
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {

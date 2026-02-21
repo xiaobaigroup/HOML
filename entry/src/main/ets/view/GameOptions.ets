@@ -4,9 +4,10 @@ import { GroupDataModel } from "../model/GroupDataModel"
 import { SettingsListView } from "../components/SettingsListView"
 import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
-import { RENDERER_LIB } from "../model/VersionSetting"
+import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { HomlViewModel } from "../core/HomlViewModel"
+import { MinecraftVersion } from "../model/MinecraftVersion"
 
 @Builder
 export function GameOptionsBuilder(name: string, param: Object) {
@@ -111,14 +112,7 @@ struct GameOptions {
       {
         title: undefined, // 无标题组
         items: [...advancedStateItems,
-          {
-            label: '附加参数',
-            content: '在启动游戏的命令行命令添加额外参数',
-            actionType: Xb_ActionType.Input,
-            onChange: (v) => {
-              // TODO: 打开附加参数编辑页
-            }
-          }
+          ...buildVersionSettings(this.viewModel.globalSetting)
         ]
       },
       {
@@ -208,4 +202,46 @@ struct GameOptions {
  */
 function getIconResource(icon: string): Resource {
   return $r(`app.media.minecraft_skin_${icon}`)
+}
+
+
+export function buildVersionSettings(version: VersionSetting): Xb_SettingsItemData[] {
+	return [
+    {
+      label: '自定义UUID',
+      content: '自定义UUID',
+      value: version.uuid,
+      actionType: Xb_ActionType.Input,
+      onChange: (v) => {
+        version.uuid = v as string
+      }
+    },
+    {
+      label: '服务器Ip',
+      content: '启动游戏后自动连接服务器',
+      value: version.serverIp,
+      actionType: Xb_ActionType.Input,
+      onChange: (v) => {
+        version.serverIp = v as string
+      }
+    },
+    {
+      label: '附加参数',
+      content: '在启动游戏的命令行命令添加额外参数',
+      value: version.minecraftArgs,
+      actionType: Xb_ActionType.Input,
+      onChange: (v) => {
+        version.minecraftArgs = v as string
+      }
+    },
+    {
+      label: 'Jvm参数',
+      content: 'Jvm添加额外参数',
+      value: version.javaArgs,
+      actionType: Xb_ActionType.Input,
+      onChange: (v) => {
+        version.javaArgs = v as string
+      }
+    }
+  ]
 }

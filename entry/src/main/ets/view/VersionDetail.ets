@@ -8,6 +8,7 @@ import { deviceInfo } from "@kit.BasicServicesKit"
 import { SettingsListView } from "../components/SettingsListView"
 import { GroupDataModel } from "../model/GroupDataModel"
 import { HomlViewModel } from "../core/HomlViewModel"
+import { buildVersionSettings } from "./GameOptions"
 
 
 @Builder
@@ -166,15 +167,7 @@ struct VersionDetail {
               }
             }
           },
-          {
-            label: "附加参数",
-            value: this.versionSetting?.javaArgs,
-            content: '在启动游戏的命令行命令添加额外参数',
-            actionType: Xb_ActionType.Input,
-            onChange: (v) => {
-              this.versionSetting.javaArgs = v as string
-            }
-          },
+          ...buildVersionSettings( this.versionSetting!)
         ]
       }
     ]

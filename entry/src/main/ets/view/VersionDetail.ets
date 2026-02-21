@@ -1,4 +1,6 @@
-import { Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName } from "xb_components"
+import { Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName,
+  Xb_MakeSettingsGroupData,
+  Xb_SettingsItemData} from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../model/VersionFunctionModel"
@@ -6,7 +8,6 @@ import { MinecraftVersion } from "../model/MinecraftVersion"
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { SettingsListView } from "../components/SettingsListView"
-import { GroupDataModel } from "../model/GroupDataModel"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { buildVersionSettings } from "./GameOptions"
 
@@ -26,7 +27,7 @@ struct VersionDetail {
   build() {
     NavDestination() {
       SettingsListView({
-        groups: this.getOptions(),
+        groups: Xb_MakeSettingsGroupData(this.getOptions()),
         headerBuilder: () => {
           this.buildVersionHeader()
         }
@@ -79,97 +80,85 @@ struct VersionDetail {
       .fontColor( $r("sys.color.font_secondary"))
   }
 
-  getOptions(): GroupDataModel[] {
+  getOptions(): Xb_SettingsItemData[] {
     return [
+      {label:"游戏选项", actionType: Xb_ActionType.GROUP},
       {
-        title: "游戏选项",
-        items: [
-          {
-            label: "使用全局设置",
-            value: this.versionSetting?.global,
-            content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
-            actionType: Xb_ActionType.TOGGLE,
-            onChange: (v) => {
-              if(this.versionSetting){
-                this.versionSetting.global = v as boolean
-              }
-            }
-          },
-          {
-            label: "版本隔离",
-            value: this.versionSetting?.isolation,
-            content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
-            actionType: Xb_ActionType.TOGGLE,
-            onChange: (v) => {
-              if(this.versionSetting){
-                this.versionSetting.isolation = v as boolean
-              }
-            }
-          },
-          {
-            label: "渲染驱动",
-            value: this.versionSetting?.renderer,
-            content: '建议使用MOBILEGLUES',
-            actionType: Xb_ActionType.MENU,
-            menuSelectList: [
-              {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
-              {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
-              {label:"OPENGLV4(鸿蒙pc)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
-            ],
-            menuDisabled:(item, index: number)=>{
-              if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
-                return true
-              }else{
-                return false
-              }
-            },
-            onChange: (v) => {
-              if(this.versionSetting){
-                this.versionSetting.renderer = v as RENDERER_LIB
-              }
-            }
+        label: "使用全局设置",
+        value: this.versionSetting?.global,
+        content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
+        actionType: Xb_ActionType.TOGGLE,
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.global = v as boolean
           }
-        ]
+        }
       },
       {
-        title: "高级选项",
-        items: [
-          {
-            label: "温馨提示",
-            icon: $r('sys.symbol.info_circle'),
-            content: '更改高级选项可能导致一些不可预测的严重问题，除非您有所把握，不建议更改高级选项。更改高级选项导致的问题启动器概不负责。',
-            actionType: Xb_ActionType.TEXT,
-          },
-        ]
+        label: "版本隔离",
+        value: this.versionSetting?.isolation,
+        content: '建议开启，隔离各版本的存档、材质、Mod等内容，可防止Mod及其配置文件的冲突问题',
+        actionType: Xb_ActionType.TOGGLE,
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.isolation = v as boolean
+          }
+        }
       },
       {
-        title: undefined,
-        items: [
-          {
-            label: "忽略Java兼容性警告",
-            value: this.versionSetting?.notCheckJVM,
-            content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
-            actionType: Xb_ActionType.TOGGLE,
-            onChange: (v) => {
-              if(this.versionSetting){
-                this.versionSetting.notCheckJVM = v as boolean
-              }
-            }
-          },
-          {
-            label: "关闭文件校验",
-            value: this.versionSetting?.fileVerification,
-            content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
-            actionType: Xb_ActionType.TOGGLE,
-            onChange: (v) => {
-              if(this.versionSetting){
-                this.versionSetting.fileVerification = v as boolean
-              }
-            }
-          },
-          ...buildVersionSettings( this.versionSetting!)
-        ]
-      }
+        label: "渲染驱动",
+        value: this.versionSetting?.renderer,
+        content: '建议使用MOBILEGLUES',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: [
+          {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
+          {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
+          {label:"OPENGLV4(鸿蒙pc)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
+        ],
+        menuDisabled:(item, index: number)=>{
+          if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
+            return true
+          }else{
+            return false
+          }
+        },
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.renderer = v as RENDERER_LIB
+          }
+        }
+      },
+      {label:"高级选项", actionType: Xb_ActionType.GROUP},
+      {
+        label: "温馨提示",
+        icon: $r('sys.symbol.info_circle'),
+        content: '更改高级选项可能导致一些不可预测的严重问题，除非您有所把握，不建议更改高级选项。更改高级选项导致的问题启动器概不负责。',
+        actionType: Xb_ActionType.TEXT,
+      },
+      {label:undefined, actionType: Xb_ActionType.GROUP},
+      {
+        label: "忽略Java兼容性警告",
+        value: this.versionSetting?.notCheckJVM,
+        content: '使用启动器的全局设置，关闭此选项以单独为此版本进行配置',
+        actionType: Xb_ActionType.TOGGLE,
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.notCheckJVM = v as boolean
+          }
+        }
+      },
+      {
+        label: "关闭文件校验",
+        value: this.versionSetting?.fileVerification,
+        content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
+        actionType: Xb_ActionType.TOGGLE,
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.fileVerification = v as boolean
+          }
+        }
+      },
+      ...buildVersionSettings( this.versionSetting!)
     ]
   }
 

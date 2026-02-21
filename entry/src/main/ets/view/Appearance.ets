@@ -1,12 +1,13 @@
 import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData, ThemeType, EventHub,
   Xb_getPersistence,
   Xb_RadioGroupData,
-  Xb_ThemeColorUtil} from "xb_components"
+  Xb_ThemeColorUtil,
+  Xb_MakeSettingsGroupData,
+  Xb_SettingsGroupData} from "xb_components"
 import { SettingsListView } from "../components/SettingsListView"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { HOMLState, UISettings } from "../entryability/AppState"
 import { EventKey } from "../common/EventKey"
-import { GroupDataModel } from "../model/GroupDataModel"
 
 @Builder
 export function AppearanceBuilder(name: string, param: Object) {
@@ -27,7 +28,7 @@ struct Appearance {
   build() {
     NavDestination() {
       SettingsListView({
-        groups: this.appearanceSettingsGroups(),
+        groups: Xb_MakeSettingsGroupData( this.appearanceSettingsGroups()),
         headerBuilder: () => {
           this.darkMode()
         },
@@ -91,180 +92,177 @@ struct Appearance {
       .fontColor( $r("sys.color.font_secondary"))
   }
 
-  appearanceSettingsGroups(): GroupDataModel[] {
+  appearanceSettingsGroups(): Xb_SettingsItemData[] {
     console.debug(`Theme appearanceSettingsGroups 当前主题色：${this.UIstate.ThemeColor}`)
     const themeColorRadioGroup: Xb_RadioGroupData = new Xb_RadioGroupData(this.UIstate.ThemeColor, 'theme_color')
     const backgroundRadioGroup: Xb_RadioGroupData = new Xb_RadioGroupData(this.UIstate.HomeBackground, 'background')
     return [
       {
-        title: '主题色',
-        items: [
-          {
-            label: '多彩',
-            value: 'default',
-            image: $r('app.media.theme_colorful_icon'),
-            radioGroup: themeColorRadioGroup,
-            content: '每个页面都有主题色',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              const value = v as string
-              this.UIstate.ThemeColor = value
-              HOMLState.currentThemeColor = undefined
-            }
-          },
-          {
-            label: '星河蓝',
-            value: 'blue',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.blue'),
-            radioGroup: themeColorRadioGroup,
-            content: '鸿蒙默认主题色',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '开源绿',
-            value: 'green',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_green'),
-            radioGroup: themeColorRadioGroup,
-            content: '开源精神',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '华为红',
-            value: 'red',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_red'),
-            radioGroup: themeColorRadioGroup,
-            content: '中华有为',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '猫咪蓝',
-            value: 'catBlue',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_cat_blue'),
-            radioGroup: themeColorRadioGroup,
-            content: '喵，这里是一只可爱的小猫咪',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '就酱紫',
-            value: 'purple',
-            content: '嗯嗯，就酱紫',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_purple'),
-            actionType: Xb_ActionType.RADIO,
-            radioGroup: themeColorRadioGroup,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '秋收黄',
-            value: 'yellow',
-            content: '丰收季节',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_yellow'),
-            actionType: Xb_ActionType.RADIO,
-            radioGroup: themeColorRadioGroup,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '哔哩粉',
-            value: 'pink',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_pink'),
-            content: '你所热爱的，就是你的生活',
-            actionType: Xb_ActionType.RADIO,
-            radioGroup: themeColorRadioGroup,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-          {
-            label: '科蓝',
-            value: 'ke_blue',
-            icon: $r('sys.symbol.circle_fill'),
-            iconColor: $r('app.color.theme_color_main_ke_blue'),
-            content: '说是科蓝',
-            actionType: Xb_ActionType.RADIO,
-            radioGroup: themeColorRadioGroup,
-            onChange: (v) => {
-              const value = v as string
-              this.changeThemeColor(value)
-            }
-          },
-        ]
+        label:'主题色',
+        actionType: Xb_ActionType.GROUP
       },
       {
-        title: undefined, // 无标题组
-        items: [
-          {
-            label: '随机主题色',
-            value: this.UIstate.RandomTheme,
-            content: '启动时随机选择一种主题色',
-            iconColor: HOMLState.currentThemeColor,
-            actionType: Xb_ActionType.TOGGLE,
-            onChange: (v) => {
-              this.UIstate.RandomTheme = v as boolean
-              if (v) {
-                // 随机主题色
-                const randomName = Xb_ThemeColorUtil.getRandomThemeName()
-                this.UIstate.ThemeColor = randomName.replace('AppTheme', '')
-                HOMLState.currentThemeColor = Xb_ThemeColorUtil.getThemeColor(randomName)
-              }
-            }
-          }
-        ]
+        label: '多彩',
+        value: 'default',
+        image: $r('app.media.theme_colorful_icon'),
+        radioGroup: themeColorRadioGroup,
+        content: '每个页面都有主题色',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          const value = v as string
+          this.UIstate.ThemeColor = value
+          HOMLState.currentThemeColor = undefined
+        }
       },
       {
-        title: '主页背景',
-        items: [
-          {
-            label: '纯色',
-            value: 'pure',
-            radioGroup: backgroundRadioGroup,
-            iconColor: HOMLState.currentThemeColor,
-            content: '默认纯色背景',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              this.changeBackground(v)
-            }
-          },
-          {
-            label: '图片',
-            value: 'image',
-            radioGroup: backgroundRadioGroup,
-            iconColor: HOMLState.currentThemeColor,
-            content: '自定义图片背景',
-            actionType: Xb_ActionType.RADIO,
-            onChange: (v) => {
-              this.changeBackground(v)
-            }
+        label: '星河蓝',
+        value: 'blue',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.blue'),
+        radioGroup: themeColorRadioGroup,
+        content: '鸿蒙默认主题色',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '开源绿',
+        value: 'green',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_green'),
+        radioGroup: themeColorRadioGroup,
+        content: '开源精神',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '华为红',
+        value: 'red',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_red'),
+        radioGroup: themeColorRadioGroup,
+        content: '中华有为',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '猫咪蓝',
+        value: 'catBlue',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_cat_blue'),
+        radioGroup: themeColorRadioGroup,
+        content: '喵，这里是一只可爱的小猫咪',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '就酱紫',
+        value: 'purple',
+        content: '嗯嗯，就酱紫',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_purple'),
+        actionType: Xb_ActionType.RADIO,
+        radioGroup: themeColorRadioGroup,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '秋收黄',
+        value: 'yellow',
+        content: '丰收季节',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_yellow'),
+        actionType: Xb_ActionType.RADIO,
+        radioGroup: themeColorRadioGroup,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '哔哩粉',
+        value: 'pink',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_pink'),
+        content: '你所热爱的，就是你的生活',
+        actionType: Xb_ActionType.RADIO,
+        radioGroup: themeColorRadioGroup,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: '科蓝',
+        value: 'ke_blue',
+        icon: $r('sys.symbol.circle_fill'),
+        iconColor: $r('app.color.theme_color_main_ke_blue'),
+        content: '说是科蓝',
+        actionType: Xb_ActionType.RADIO,
+        radioGroup: themeColorRadioGroup,
+        onChange: (v) => {
+          const value = v as string
+          this.changeThemeColor(value)
+        }
+      },
+      {
+        label: undefined,
+        actionType: Xb_ActionType.GROUP
+      },
+      {
+        label: '随机主题色',
+        value: this.UIstate.RandomTheme,
+        content: '启动时随机选择一种主题色',
+        iconColor: HOMLState.currentThemeColor,
+        actionType: Xb_ActionType.TOGGLE,
+        onChange: (v) => {
+          this.UIstate.RandomTheme = v as boolean
+          if (v) {
+            // 随机主题色
+            const randomName = Xb_ThemeColorUtil.getRandomThemeName()
+            this.UIstate.ThemeColor = randomName.replace('AppTheme', '')
+            HOMLState.currentThemeColor = Xb_ThemeColorUtil.getThemeColor(randomName)
           }
-        ]
+        }
+      },
+      {
+        label: "主题色",
+        actionType: Xb_ActionType.GROUP
+      },
+      {
+        label: '纯色',
+        value: 'pure',
+        radioGroup: backgroundRadioGroup,
+        iconColor: HOMLState.currentThemeColor,
+        content: '默认纯色背景',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          this.changeBackground(v)
+        }
+      },
+      {
+        label: '图片',
+        value: 'image',
+        radioGroup: backgroundRadioGroup,
+        iconColor: HOMLState.currentThemeColor,
+        content: '自定义图片背景',
+        actionType: Xb_ActionType.RADIO,
+        onChange: (v) => {
+          this.changeBackground(v)
+        }
       }
     ]
   }

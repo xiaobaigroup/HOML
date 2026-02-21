@@ -1,13 +1,11 @@
 
-import { Xb_SettingsItem, Xb_SettingsItemData, ThemeType } from 'xb_components'
-import { PADDING_VALUE_12 } from 'xb_components/src/main/ets/components/Constants'
-import { GroupDataModel } from '../model/GroupDataModel'
+import { Xb_SettingsItem, Xb_SettingsItemData, ThemeType, Xb_SettingsGroupData } from 'xb_components'
 import { HOMLState } from '../entryability/AppState'
 
 @ComponentV2
 export struct SettingsListView {
   // 接收配置数据
-  @Param groups: GroupDataModel[] = []
+  @Param groups: Xb_SettingsGroupData[] = []
   // 接收可能的自定义头部
   @BuilderParam headerBuilder?: () => void
   // 接收可能的自定义尾部
@@ -28,9 +26,9 @@ export struct SettingsListView {
         this.headerBuilder()
       }
       // 遍历分组
-      ForEach(this.groups, (group: GroupDataModel) => {
+      ForEach(this.groups, (group: Xb_SettingsGroupData) => {
         ListItemGroup({
-          header: group?.title ? this.title(group.title) : undefined,
+          header: group?.group ? this.title(group.group.label) : undefined,
           space: 2
         }) {
           // 遍历组内项
@@ -49,7 +47,7 @@ export struct SettingsListView {
         .margin({ left: 12, right: 12 })
         .divider({ color: $r("app.color.divider_light"), strokeWidth: 1 })
         .backgroundColor($r('sys.color.background_primary'))
-      }, (group: GroupDataModel) => `${group.title}${group.items.length * Math.random() }`)
+      }, (group: Xb_SettingsGroupData) => `${group.group?.label}${group.items.length * Math.random() }`)
       // 自定义尾部
       if (this.endBuilder) {
         this.endBuilder()

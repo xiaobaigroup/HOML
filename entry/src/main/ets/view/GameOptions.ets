@@ -1,13 +1,12 @@
 import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData,
-  Xb_getPersistence} from "xb_components"
-import { GroupDataModel } from "../model/GroupDataModel"
+  Xb_getPersistence,
+  Xb_MakeSettingsGroupData} from "xb_components"
 import { SettingsListView } from "../components/SettingsListView"
 import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { HomlViewModel } from "../core/HomlViewModel"
-import { MinecraftVersion } from "../model/MinecraftVersion"
 
 @Builder
 export function GameOptionsBuilder(name: string, param: Object) {
@@ -29,7 +28,7 @@ struct GameOptions {
   build() {
     NavDestination() {
       SettingsListView({
-        groups: this.optionsSettingsGroups,
+        groups: Xb_MakeSettingsGroupData(this.optionsSettingsGroups),
         endBuilder: () => {
           this.skins()
         }
@@ -75,7 +74,7 @@ struct GameOptions {
     }
   }
 
-  get optionsSettingsGroups(): GroupDataModel[] {
+  get optionsSettingsGroups(): Xb_SettingsItemData[] {
     const gameItems = this.buildGameItems(this.viewModel)
     // 高级选项（固定项）
     const advancedItems: Xb_SettingsItemData[] = [
@@ -101,24 +100,15 @@ struct GameOptions {
     ]
     // 拼装
     return [
-      {
-        title: '游戏选项',
-        items: gameItems
-      },
-      {
-        title: '高级选项',
-        items: advancedItems
-      },
-      {
-        title: undefined, // 无标题组
-        items: [...advancedStateItems,
-          ...buildVersionSettings(this.viewModel.globalSetting)
-        ]
-      },
-      {
-        title: '离线皮肤',
-        items: offlineSkinItems
-      }
+      {label:'游戏选项', actionType: Xb_ActionType.GROUP},
+      ...gameItems,
+      {label:'游戏选项', actionType: Xb_ActionType.GROUP},
+      ...advancedItems,
+      {label:undefined, actionType: Xb_ActionType.GROUP},
+      ...advancedStateItems,
+      ...buildVersionSettings(this.viewModel.globalSetting),
+      {label:'离线皮肤', actionType: Xb_ActionType.GROUP},
+      ...offlineSkinItems,
     ]
   }
 

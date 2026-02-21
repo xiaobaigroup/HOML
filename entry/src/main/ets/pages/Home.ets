@@ -3,8 +3,9 @@ import { VersionListView } from "../components/VersionListView"
 import { HOMLState, UISettings } from "../entryability/AppState"
 import { Versions } from "../view/Versions"
 import { LengthMetrics, PersistenceV2 } from "@kit.ArkUI"
-import { Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistence } from "xb_components"
+import { hasJit, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistence, Xb_ToastUtil } from "xb_components"
 import { HomlViewModel } from "../core/HomlViewModel"
+import { Xb_TopTitleBar } from "xb_components/src/main/ets/components/Xb_TopTitleBar"
 
 PersistenceV2.notifyOnError((key, reason, msg) => {
   console.error(`Error key: ${key}, reason: ${reason}, message: ${msg}`);
@@ -89,9 +90,13 @@ export struct Home {
           if (!this.viewmodel.current) {
             HOMLState.showVersions = true
           } else {
-            this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
-              console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
-            })
+            if(hasJit()){
+              this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
+                console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
+              })
+            }else {
+              Xb_ToastUtil.showToast({message:"未申请jit权限, 请自行解决"})
+            }
           }
         })
       }
@@ -128,7 +133,6 @@ export struct Home {
   }
 
   aboutToAppear(): void {
-    this.viewmodel.loadVersions()
   }
 
   @Builder

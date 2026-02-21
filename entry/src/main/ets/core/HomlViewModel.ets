@@ -47,6 +47,7 @@ export class HomlViewModel {
       homeDir = context.filesDir + "/HOML/"
     }
     if (this.gameProfile.homeType == HomeDirectoryType.Download){
+      await Xb_GlobalContext.initDownloadDir()
       homeDir = Xb_GlobalContext.downloadDir + "/HOML/"
     }
     if(this.gameProfile.customHomeDir == "" && this.gameProfile.homeType == HomeDirectoryType.Custom)
@@ -75,7 +76,7 @@ export class HomlViewModel {
     }
   }
   async initHome(){
-    this.changeHome()
+    await this.changeHome()
   }
 
   async loadVersions(){

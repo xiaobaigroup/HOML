@@ -1,6 +1,9 @@
-import { Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName,
+import {
+  hasJit,
+  Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName,
   Xb_MakeSettingsGroupData,
-  Xb_SettingsItemData} from "xb_components"
+  Xb_SettingsItemData,
+  Xb_ToastUtil} from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
 import { VersionItemView } from "../components/VersionListView"
 import { VersionFunctionModel } from "../model/VersionFunctionModel"
@@ -171,9 +174,13 @@ struct VersionDetail {
         backgroundColor: $r('app.color.green'),
         onAction: async () => {
           this.viewmodel.selectVersion(this.currentVersion)
-          this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
-            console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
-          })
+          if(hasJit()){
+            this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
+              console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
+            })
+          }else {
+            Xb_ToastUtil.showToast({message:"未申请jit权限, 请自行解决"})
+          }
         }
       },
       {

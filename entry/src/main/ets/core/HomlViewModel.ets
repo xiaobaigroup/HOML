@@ -104,12 +104,19 @@ export class HomlViewModel {
     let gameUri = await Xb_FileUtils.openFile(Xb_GlobalContext.getContext())
     if(gameUri?.endsWith("zip")){
       let targetFile = context.tempDir + "/temp.zip";
+      let outDir = this.homeDir + "out";
+      if(! await fileIo.access(outDir)){
+        await fileIo.mkdir(outDir)
+      }
       try {
         this.zipLoading = true
         await fileIo.copyFile(gameUri, targetFile);
-        await zlib.decompressFile(targetFile, this.homeDir)
+        await zlib.decompressFile(targetFile, outDir)
         await fileIo.unlink(targetFile)
-        Xb_ToastUtil.showToast({message:"加载成功"})
+        const result = await this.fixGameHome(outDir)
+        if(result){
+          Xb_ToastUtil.showToast({message:"加载成功"})
+        }
         this.zipLoading = false
         this.loadVersions()
       }catch (e) {
@@ -119,6 +126,37 @@ export class HomlViewModel {
     }else{
       Xb_ToastUtil.showToast({message:"仅zip"})
     }
+  }
+  async fixGameHome(outDir: string): Promise<boolean>{
+    try {
+      if(await fileIo.access(outDir + "/.minecraft/")){
+        await fileIo.moveDir(outDir + "/", this.homeDir, 2)
+      } else if(await fileIo.access(outDir + "/versions/")){
+        await fileIo.moveDir(outDir + "/", this.homeDir + ".minecraft/", 2)
+      } else {
+        const child = await fileIo.listFile(outDir)
+        if (child.length == 1){
+          if (await fileIo.access(outDir + "/" + child[0] + "/.minecraft/")){
+            await fileIo.moveDir(outDir + "/" + child[0] + "/", this.homeDir, 2)
+          } else if (await fileIo.access(outDir + "/" + child[0] + "/versions/")){
+            await fileIo.moveDir(outDir + "/" + child[0] + "/", this.homeDir + ".minecraft/", 2)
+          }
+        }
+      }
+    } catch (err) {
+      if (err && err.code == 13900015 && err.data?.length !== undefined) {
+        for (let i = 0; i < err.data.length; i++) {
+          console.error("move directory failed with conflicting files: " + err.data[i].srcFile + " " + err.data[i].destFile);
+        }
+      } else if (err) {
+        console.error("move directory failed with error message: " + err.message + ", error code: " + err.code);
+      } else {
+        console.info("move directory succeed");
+      }
+      Xb_ToastUtil.showToast({ message: "移动游戏目录失败:" + err.message })
+      return false
+    }
+    return true
   }
 
   getRunDirectory(id:string): string {
@@ -136,7 +174,7 @@ export class HomlViewModel {
 }
 
 export function fixLibs(dirGameNew: string){
-  if (!fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2")) {
+  if (!fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2") && fileIo.accessSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.3.0/oshi-core-6.3.0.jar")) {
     try {
       fileIo.mkdirSync(dirGameNew + "/libraries/com/github/oshi/oshi-core/6.2.2", true)
       fileIo.copyFileSync(

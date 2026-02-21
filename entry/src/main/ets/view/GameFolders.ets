@@ -84,9 +84,10 @@ struct GameFolders {
             onChange: async (v) => {
               const dir = await Xb_FileUtils.selectDir()
               if (dir) {
-                this.viewModel.gameProfile.customHomeDir
+                this.viewModel.gameProfile.customHomeDir = dir
+                Xb_FileUtils.persistPermissionDir(dir)
+                this.viewModel.changeHome()
               }
-              // TODO 拉起选择弹窗
             }
           }
         ]

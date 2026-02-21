@@ -47,11 +47,17 @@ export class HomlViewModel {
     if(this.gameProfile.customHomeDir == "" && this.gameProfile.homeType == HomeDirectoryType.Custom)
       return;
     if (this.gameProfile.homeType == HomeDirectoryType.Custom){
-      homeDir = this.gameProfile.customHomeDir + "/HOML/"
+      homeDir = this.gameProfile.customHomeDir + "/"
     }
-    if (!await fileIo.access(homeDir)){
-      await fileIo.mkdir(homeDir)
+    try {
+      if (!await fileIo.access(homeDir)){
+        await fileIo.mkdir(homeDir)
+      }
+    }catch (e) {
+      Xb_ToastUtil.showToast({message:"创建目录失败:" + this.homeDir})
+      return
     }
+
     this.homeDir  = homeDir;
     this.gameRootDir = homeDir + ".minecraft/"
     fixLibs(this.gameRootDir)

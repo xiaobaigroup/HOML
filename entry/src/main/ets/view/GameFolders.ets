@@ -90,10 +90,15 @@ struct GameFolders {
     ]
   }
 
-  changeGameFolder(v: number | boolean | ResourceStr) {
+  async changeGameFolder(v: number | boolean | ResourceStr) {
     const value = v as HomeDirectoryType
+    const old =  this.viewModel.gameProfile.homeType
     this.viewModel.gameProfile.homeType = value
-    this.viewModel.changeHome()
+    try {
+      await this.viewModel.changeHome()
+    }catch (e) {
+      this.viewModel.gameProfile.homeType = old
+    }
   }
 
 

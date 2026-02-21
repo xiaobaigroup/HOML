@@ -148,7 +148,7 @@ export struct Versions {
     return [
       {
         label: '沙箱目录',
-        content: this.viewmodel.homeDir, // 沙箱目录地址
+        content: this.viewmodel.gameProfile.homeType == HomeDirectoryType.Sandbox ? this.viewmodel.homeDir : "", // 沙箱目录地址
         value: HomeDirectoryType.Sandbox,
         actionType: Xb_ActionType.TEXT,
         onChange: (v) => {
@@ -157,7 +157,7 @@ export struct Versions {
       },
       {
         label: '下载目录',
-        content: '', // 下载目录地址
+        content: this.viewmodel.gameProfile.homeType == HomeDirectoryType.Download ? this.viewmodel.homeDir : "", // 下载目录地址
         value: HomeDirectoryType.Download,
         actionType: Xb_ActionType.TEXT,
         onChange: (v) => {
@@ -170,23 +170,28 @@ export struct Versions {
         value: HomeDirectoryType.Custom,
         actionType: Xb_ActionType.TEXT,
         onChange: async (v) => {
+          const old = this.viewmodel.gameProfile.homeType
           this.changeGameFolder(v)
-          if (this.viewmodel.gameProfile.customHomeDir) return
+          if (this.viewmodel.gameProfile.customHomeDir && this.viewmodel.gameProfile.customHomeDir != "") return
           const dir = await Xb_FileUtils.selectDir()
           if (dir) {
             this.viewmodel.gameProfile.customHomeDir = dir
             Xb_FileUtils.persistPermissionDir(dir)
             this.viewmodel.changeHome()
           }
+          if(!this.viewmodel.gameProfile.customHomeDir ||  this.viewmodel.gameProfile.customHomeDir == ""){
+            this.viewmodel.gameProfile.homeType = old
+          }
+
         }
       }
     ]
   }
 
-  changeGameFolder(v: number | boolean | ResourceStr) {
+  async changeGameFolder(v: number | boolean | ResourceStr) {
     const value = v as HomeDirectoryType
     this.viewmodel.gameProfile.homeType = value
-    this.viewmodel.changeHome()
+    await this.viewmodel.changeHome()
   }
 
 }

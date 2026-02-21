@@ -129,30 +129,21 @@ export class HomlViewModel {
   }
   async fixGameHome(outDir: string): Promise<boolean>{
     try {
-      if(await fileIo.access(outDir + "/.minecraft/")){
-        await fileIo.moveDir(outDir + "/", this.homeDir, 2)
-      } else if(await fileIo.access(outDir + "/versions/")){
-        await fileIo.moveDir(outDir + "/", this.homeDir + ".minecraft/", 2)
-      } else {
-        const child = await fileIo.listFile(outDir)
-        if (child.length == 1){
-          if (await fileIo.access(outDir + "/" + child[0] + "/.minecraft/")){
-            await fileIo.moveDir(outDir + "/" + child[0] + "/", this.homeDir, 2)
-          } else if (await fileIo.access(outDir + "/" + child[0] + "/versions/")){
-            await fileIo.moveDir(outDir + "/" + child[0] + "/", this.homeDir + ".minecraft/", 2)
-          }
+     const foundDir = await findMinecraftDir(outDir);
+      if (foundDir) {
+        // 如果找到的是 .minecraft 目录
+        if (foundDir.endsWith('.minecraft/')) {
+          const sourceDir = foundDir.substring(0, foundDir.length - 11); // 去掉 .minecraft/
+          await fileIo.moveDir(sourceDir, this.homeDir, 2);
         }
+        // 如果找到的是包含 versions 的目录
+        else if (await fileIo.access(foundDir + "/versions/")) {
+          await fileIo.moveDir(foundDir, this.homeDir + ".minecraft/", 2);
+        }
+      } else {
+        console.log("No Minecraft directory found in " + outDir);
       }
     } catch (err) {
-      if (err && err.code == 13900015 && err.data?.length !== undefined) {
-        for (let i = 0; i < err.data.length; i++) {
-          console.error("move directory failed with conflicting files: " + err.data[i].srcFile + " " + err.data[i].destFile);
-        }
-      } else if (err) {
-        console.error("move directory failed with error message: " + err.message + ", error code: " + err.code);
-      } else {
-        console.info("move directory succeed");
-      }
       Xb_ToastUtil.showToast({ message: "移动游戏目录失败:" + err.message })
       return false
     }
@@ -215,3 +206,41 @@ export function getVersionSetting(id:string): VersionSetting {
   return  Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
 }
 
+
+const MAX_DEPTH = 5;
+const findMinecraftDir = async (dir: string, depth: number = 0): Promise<string | null> => {
+  if (depth > MAX_DEPTH) return null;
+  try {
+    // 检查当前目录
+    if (await fileIo.access(dir + "/.minecraft/")) {
+      return dir + "/.minecraft/";
+    }
+    if (await fileIo.access(dir + "/versions/")) {
+      return dir;
+    }
+
+    // 获取子目录
+    const children = await fileIo.listFile(dir);
+    const subDirs: string[] = [];
+
+    // 过滤出目录
+    for (const child of children) {
+      const fullPath = dir + "/" + child;
+      const file = await fileIo.stat(fullPath)
+      if (file.isDirectory()) {
+        subDirs.push(fullPath);
+      }
+    }
+    // 递归查找子目录
+    for (const subDir of subDirs) {
+      const result = await findMinecraftDir(subDir, depth + 1);
+      if (result) {
+        return result;
+      }
+    }
+  } catch (err) {
+    // 忽略权限错误等，继续查找
+    console.debug(`Cannot access directory ${dir}: ${err.message}`);
+  }
+  return null;
+};

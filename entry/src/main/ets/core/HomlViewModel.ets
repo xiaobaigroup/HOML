@@ -54,7 +54,10 @@ export class HomlViewModel {
       return;
     if (this.gameProfile.homeType == HomeDirectoryType.Custom){
       homeDir = this.gameProfile.customHomeDir + "/"
-      await Xb_FileUtils.activatePermissionDir(this.gameProfile.customHomeDir)
+      if(homeDir.endsWith(".minecraft/"))
+        homeDir = homeDir.substring(0, homeDir.length - 11)
+      this.gameProfile.customHomeDir = homeDir
+      await Xb_FileUtils.activatePermissionDir(homeDir)
     }
     try {
       if (!await fileIo.access(homeDir)){

@@ -3,6 +3,7 @@ import { getColorWithTransparency } from "../common/util/ColorWithTransparency";
 import { HomlViewModel } from "../core/HomlViewModel";
 import { HOMLState } from "../entryability/AppState";
 import { MinecraftVersion } from "../model/MinecraftVersion";
+import { ModType } from "../model/ModType";
 
 
 @ComponentV2
@@ -45,11 +46,13 @@ export struct VersionListView {
 }
 
 function version_code(item:MinecraftVersion){
-  let game = item.patches?.find(d=> d.id == "game")
+  let game = item.patches?.find(d => d.id == "game")
   if(!game)
     game = item.patches?.[0]
   if(game)
     return game.version
+  if(item.clientVersion)
+    return item.clientVersion
   return ""
 }
 function mod_version(item: MinecraftVersion){
@@ -61,11 +64,12 @@ function mod_version(item: MinecraftVersion){
   return ""
 }
 function mod_name(item: MinecraftVersion){
-  if(!item.patches)
-    return "normal"
-  if (item.patches.length > 1){
+  if (item.patches && item.patches.length > 1){
     return item.patches[1].id
   }
+  if(item.mainClass.indexOf("neoforged") > -1)
+    return ModType.forge;
+
   return "normal"
 }
 @Builder
@@ -78,7 +82,7 @@ export function VersionItemView(item: MinecraftVersion, small: boolean = false) 
       Text(item.id)
         .fontWeight(FontWeight.Medium)
         .fontSize(small ? 16 : 19)
-      Text(`${version_code(item)} · ${VersionMap[mod_name(item)]} ${mod_version(item)}`)
+      Text(`${version_code(item)} · ${VersionNameMap[mod_name(item)]} ${mod_version(item)}`)
         .fontSize(small ? 14 : 16)
     }
     .alignItems(HorizontalAlign.Start)
@@ -97,9 +101,13 @@ function getIconResource(icon: string): Resource {
   return $r(`app.media.icon_${icon}`)
 }
 
-
-const VersionMap: Record<string, string> = {
+//Forge/NeoForge/LiteLoader/OptiFine/Fabric/Quilt
+const VersionNameMap: Record<string, string> = {
   'normal': '原版',
   'fabric': 'Fabric',
-  'forge': 'Forge'
+  'forge': 'Forge',
+  'neoforge': 'NeoForge',
+  'liteloader': 'LiteLoader',
+  'optifine': 'OptiFine',
+  'quilt': 'Quilt',
 }

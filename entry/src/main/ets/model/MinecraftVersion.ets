@@ -11,6 +11,9 @@ export interface MinecraftVersion {
   logging: Logging;
   mainClass: string;
   minimumLauncherVersion: number;
+  // pcl
+  clientVersion: string
+  // fcl
   patches?: Patch[];
   releaseTime: string;
   root?: boolean;

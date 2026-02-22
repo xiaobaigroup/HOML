@@ -64,11 +64,13 @@ function mod_version(item: MinecraftVersion){
   return ""
 }
 function mod_name(item: MinecraftVersion){
+  // fcl
   if (item.patches && item.patches.length > 1){
     return item.patches[1].id
   }
-  if(item.mainClass.indexOf("neoforged") > -1)
-    return ModType.forge;
+  // pcl
+  if(mainClassModTypeMap[item.mainClass])
+    return mainClassModTypeMap[item.mainClass]
 
   return "normal"
 }
@@ -110,4 +112,13 @@ const VersionNameMap: Record<string, string> = {
   'liteloader': 'LiteLoader',
   'optifine': 'OptiFine',
   'quilt': 'Quilt',
+}
+
+const mainClassModTypeMap: Record<string, string> = {
+  'net.fabricmc.loader.impl.launch.knot.KnotClient': ModType.fabric,
+  'cpw.mods.bootstraplauncher.BootstrapLauncher': ModType.forge,
+  'net.neoforged.fml.startup.Client': ModType.neoforge,
+  'org.quiltmc.loader.impl.launch.knot.KnotClient': ModType.quilt,
+  'cpw.mods.modlauncher.Launcher': ModType.optifine,
+  'com.mumfrey.liteloader.launch.LiteLoaderTweaker': ModType.liteloader,
 }

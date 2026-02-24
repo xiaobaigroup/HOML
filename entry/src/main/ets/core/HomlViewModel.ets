@@ -1,4 +1,6 @@
-import { Xb_FileUtils,
+import {
+  hasJit,
+  Xb_FileUtils,
   Xb_GameMenuState,
   Xb_getPersistence,
   Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
@@ -11,6 +13,7 @@ import { MinecraftAccount } from "../model/MinecraftAccount";
 import { GameProfile, HomeDirectoryType } from "../model/GameProfile";
 import { MicrosoftService } from "../auth/MicrosoftService";
 import { OAuthServer } from "../auth/OAuthServer";
+import { HOMLState } from "../entryability/AppState";
 
 @ObservedV2
 export class HomlViewModel {
@@ -45,6 +48,14 @@ export class HomlViewModel {
       console.error("authenticate failure:" + e.message, e.stack)
     }
 
+  }
+  async toGame(){
+    if(hasJit()){
+      HOMLState.pageStack.pushPathByName("GamePage", true)
+    }else {
+      Xb_ToastUtil.showDialog({title:"暂未开放", message:"未申请JIT权限! 建议使用其他功能.",buttons:[{color:$r("app.color.emphasize"),text:"好的"}]}, ()=>{
+      })
+    }
   }
   async changeHome(){
     let homeDir = ""
@@ -110,6 +121,7 @@ export class HomlViewModel {
 
   async loadZip(){
     const context = Xb_GlobalContext.getContext()
+    this.zipLoading = true
     let gameUri = await Xb_FileUtils.openFile(Xb_GlobalContext.getContext())
     if(gameUri?.endsWith("zip")){
       let targetFile = context.tempDir + "/temp.zip";
@@ -118,7 +130,6 @@ export class HomlViewModel {
         await fileIo.mkdir(outDir)
       }
       try {
-        this.zipLoading = true
         await fileIo.copyFile(gameUri, targetFile);
         await zlib.decompressFile(targetFile, outDir)
         await fileIo.unlink(targetFile)
@@ -126,15 +137,15 @@ export class HomlViewModel {
         if(result){
           Xb_ToastUtil.showToast({message:"加载成功"})
         }
-        this.zipLoading = false
         this.loadVersions()
       }catch (e) {
         this.zipLoading = false
         Xb_ToastUtil.showToast({message:"加载失败:" + e.message})
       }
-    }else{
+    } else if(gameUri && gameUri != "") {
       Xb_ToastUtil.showToast({message:"仅zip"})
     }
+    this.zipLoading = false
   }
   async fixGameHome(outDir: string): Promise<boolean>{
     try {

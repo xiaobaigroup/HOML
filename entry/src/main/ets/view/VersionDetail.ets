@@ -174,13 +174,7 @@ struct VersionDetail {
         backgroundColor: $r('app.color.green'),
         onAction: async () => {
           this.viewmodel.selectVersion(this.currentVersion)
-          if(hasJit()){
-            this.getUIContext().getRouter().pushUrl({url:"pages/Game"}).catch((err: BusinessError) => {
-              console.error(`pages/Game 路由失败，name: ${err.name}, message: ${err.message}`)
-            })
-          }else {
-            Xb_ToastUtil.showToast({message:"未申请jit权限, 请自行解决"})
-          }
+          this.viewmodel.toGame()
         }
       },
       {

@@ -15,7 +15,6 @@ export struct Versions {
   @Local viewmodel: HomlViewModel = Xb_getAppStore(HomlViewModel)!
   @Local UIstate: UISettings = Xb_getPersistence(UISettings)!
   @Local showFolderSelect: boolean = false
-  @Local loadingZip: boolean = false
   private pageStack: NavPathStack = new NavPathStack()
 
   build() {
@@ -89,9 +88,7 @@ export struct Versions {
             iconColor: $r('sys.color.font_primary'),
             theBackgroundColor: Color.Transparent,
             onCheck: async () => {
-              this.loadingZip = true
               await this.viewmodel.loadZip()
-              this.loadingZip = false
             }
           })
         }
@@ -100,7 +97,7 @@ export struct Versions {
         .margin({ bottom: HOMLState.bottomRectHeight })
         .backgroundColor($r('sys.color.ohos_id_color_hover'))
 
-        if (this.loadingZip) {
+        if (this.viewmodel.zipLoading) {
           Column() {
             LoadingProgress()
               .width(69)

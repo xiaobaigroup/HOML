@@ -96,7 +96,20 @@ export class NativeInput {
     if(e.source != SourceType.Mouse)
       return;
     if(e.action == MouseAction.Press || e.action == MouseAction.Release || e.action == MouseAction.CANCEL){
-      this.sendMouseButton(e.button, e.action == MouseAction.Press )
+      let button = Xb_MouseButtonCode.Left
+      if(e.button == MouseButton.Right){
+        button = Xb_MouseButtonCode.Right
+      }
+      if(e.button == MouseButton.Middle){
+        button = Xb_MouseButtonCode.Middle
+      }
+      if(e.button == MouseButton.Back){
+        button = Xb_MouseButtonCode.Back
+      }
+      if(e.button == MouseButton.Forward){
+        button = Xb_MouseButtonCode.Forward
+      }
+      this.sendMouseButton(button, e.action == MouseAction.Press )
     }
   }
   public sendMouseButton(keycode:number, down: boolean){

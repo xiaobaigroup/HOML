@@ -8,6 +8,7 @@ export class GameViewModel implements Xb_ControllerEventHandler{
   }
 
   onMouseEvent(e: MouseEvent, x: number, y: number, width: number, height: number): void {
+    this.nativeInput.sendMouseEvent(e)
   }
 
   onTouchEvent(e: TouchEvent, width: number, height: number): void {

@@ -24,13 +24,19 @@ export class HomlViewModel {
   @Trace homeDir: string = ""
   @Trace gameRootDir: string = ""
 
+  @Trace searchVersion: string = ""
+
   ms: MicrosoftService = new MicrosoftService(new OAuthServer())
 
   selectVersion(version: MinecraftVersion){
     this.current = version;
     this.gameProfile.lastVersion = version.id
   }
-
+  filterVersion(versions: MinecraftVersion[], search:string){
+    if(search == "")
+      return versions
+    return versions.filter(d=> d.id.indexOf(search) > -1)
+  }
   async toLogin(){
     try {
       await this.ms.authenticate()

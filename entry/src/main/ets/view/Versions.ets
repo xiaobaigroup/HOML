@@ -53,11 +53,11 @@ export struct Versions {
           })
             .margin({ left: 12 + HOMLState.leftAvoidWidth, right: 12 })
             .onSubmit((data) => {
-
+                this.viewmodel.searchVersion = data
             })
           // 版本列表
           VersionListView({
-            items: this.viewmodel.versions,
+            items: this.viewmodel.filterVersion(this.viewmodel.versions, this.viewmodel.searchVersion),
             contentEndOffset: 100 + HOMLState.bottomRectHeight,
             itemBackgroundColor: HOMLState.currentThemeColor || $r('app.color.blue'),
             onItemClick: (data) => {

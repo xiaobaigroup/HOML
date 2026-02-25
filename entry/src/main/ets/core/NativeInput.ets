@@ -1,18 +1,11 @@
 import { send_key, send_cursor_pos, send_mouse_button, on_cursor_enabled, send_char_mods, send_char } from "libhoml_bridge.so";
 import { KeyCode, } from "@kit.InputKit";
 import LWJGLGLFWKeycode, { toGLFW } from "./LWJGLKeycode";
-import { FCLKeycodes } from "./FCLKeycode";
 import { Xb_getPersistence, Xb_GameMenuState, Xb_MouseButtonCode } from "xb_components";
 
 export class NativeInput {
   menu: Xb_GameMenuState = Xb_getPersistence(Xb_GameMenuState)!
-  FCL_MOUSE_MAP: Map<number, number> = new Map([
-    [FCLKeycodes.MOUSE_LEFT, LWJGLGLFWKeycode.MOUSE_BUTTON_1],
-    [FCLKeycodes.MOUSE_RIGHT, LWJGLGLFWKeycode.MOUSE_BUTTON_2],
-    [FCLKeycodes.MOUSE_MIDDLE, LWJGLGLFWKeycode.MOUSE_BUTTON_3],
-    [FCLKeycodes.MOUSE_SCROLL_UP, LWJGLGLFWKeycode.MOUSE_BUTTON_4],
-    [FCLKeycodes.MOUSE_SCROLL_DOWN, LWJGLGLFWKeycode.MOUSE_BUTTON_5],
-  ])
+
   OHOS_MOUSE_MAP: Map<number, number> = new Map([
     [Xb_MouseButtonCode.Left, LWJGLGLFWKeycode.MOUSE_BUTTON_1],
     [Xb_MouseButtonCode.Right, LWJGLGLFWKeycode.MOUSE_BUTTON_2],

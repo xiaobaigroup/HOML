@@ -1,5 +1,4 @@
 import { KeyCode } from "@kit.InputKit";
-import { HashMap } from "@kit.ArkTS";
 import { Xb_MouseButtonCode } from "xb_components";
 
 export class FCLKeycodes {
@@ -291,8 +290,20 @@ export class FCLKeycodes {
     [FCLKeycodes.MOUSE_SCROLL_DOWN, Xb_MouseButtonCode.Back]
   ]);
 
-
+  static FCL_MOUSE_MAP: Map<number, number> = new Map([
+    [FCLKeycodes.MOUSE_LEFT, Xb_MouseButtonCode.Left],
+    [FCLKeycodes.MOUSE_RIGHT, Xb_MouseButtonCode.Right],
+    [FCLKeycodes.MOUSE_MIDDLE, Xb_MouseButtonCode.Middle],
+    [FCLKeycodes.MOUSE_SCROLL_UP, Xb_MouseButtonCode.Forward],
+    [FCLKeycodes.MOUSE_SCROLL_DOWN, Xb_MouseButtonCode.Back],
+  ])
   static onNormKeyCode(key:number): number{
+    if(FCLKeycodes.FCL_MOUSE_MAP.has(key)){
+      let val = FCLKeycodes.FCL_MOUSE_MAP.get(key)
+      if(val){
+        return val
+      }
+    }
     let val = FCLKeycodes.mapping.get(key)
     if(val){
       return val

@@ -157,7 +157,7 @@ struct Welcome {
           .margin({ bottom: 36 })
         Text('欢迎来到 Homo Launcher')
           .fontSize(18)
-        Text('为了更好的使用体验，请前往设置目录')
+        Text('为了更好的使用体验，请前往目录管理设置目录类型')
           .fontSize(18)
         Blank()
         Row({ space: 12 }) {

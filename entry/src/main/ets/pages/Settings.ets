@@ -95,25 +95,25 @@ export struct Settings {
     return [
       {
         id: 'global_game_options',
-        label: '全局游戏选项',
+        label: '全局选项',
         icon: $r('sys.symbol.scenes'),
         actionType: Xb_ActionType.TEXT
       },
       {
         id: 'game_folder',
-        label: '游戏目录',
+        label: '目录管理',
         icon: $r('sys.symbol.folder_fill'),
         actionType: Xb_ActionType.TEXT
       },
       {
         id: 'launcher_appearance',
-        label: '启动器外观',
+        label: '外观',
         icon: $r('sys.symbol.brush_fill'),
         actionType: Xb_ActionType.TEXT
       },
       {
         id: 'virtual_control_button',
-        label: '虚拟按键配置',
+        label: '虚拟布局配置',
         icon: $r('sys.symbol.gamecontroller_fill'),
         actionType: Xb_ActionType.TEXT
       },

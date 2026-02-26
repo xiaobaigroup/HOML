@@ -164,7 +164,7 @@ export class HomlViewModel {
         console.log("No Minecraft directory found in " + outDir);
       }
     } catch (err) {
-      Xb_ToastUtil.showToast({ message: "移动游戏目录失败:" + err.message })
+      Xb_ToastUtil.showToast({ message: "移动目录失败:" + err.message })
       return false
     }
     return true

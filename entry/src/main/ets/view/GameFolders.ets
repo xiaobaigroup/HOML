@@ -8,6 +8,7 @@ import { SettingsListView } from "../components/SettingsListView"
 import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { HomeDirectoryType } from "../model/GameProfile"
+import { deviceInfo } from "@kit.BasicServicesKit"
 
 @Builder
 export function GameFoldersBuilder(name: string, param: Object) {
@@ -26,7 +27,7 @@ struct GameFolders {
         groups: Xb_MakeSettingsGroupData(this.getFoldersManager()) ,
       })
     }
-    .title('游戏目录管理')
+    .title('目录管理')
     .padding({ top: HOMLState.topRectHeight })
     .backgroundColor(this.UIstate.HomeBackground == 'image' && HOMLState.widthBp > 1 ? Color.Transparent : $r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
@@ -37,7 +38,7 @@ struct GameFolders {
   getFoldersManager(): Xb_SettingsItemData[] {
     const folderRadioGroup: Xb_RadioGroupData = new Xb_RadioGroupData(this.viewModel.gameProfile.homeType.toString(), 'folder')
     return [
-      {label:'游戏目录', actionType: Xb_ActionType.GROUP},
+      {label:'目录类型', actionType: Xb_ActionType.GROUP},
       {
         label: '沙箱目录',
         value: HomeDirectoryType.Sandbox,
@@ -61,7 +62,7 @@ struct GameFolders {
         }
       },
       {
-        label: '自定义目录',
+        label: '自定义目录(仅PC)',
         value: HomeDirectoryType.Custom,
         radioGroup: folderRadioGroup,
         iconColor: HOMLState.currentThemeColor,
@@ -76,6 +77,7 @@ struct GameFolders {
         {
           label: '选择目录',
           iconColor: HOMLState.currentThemeColor,
+          content: "鸿蒙pc可用",
           actionType: Xb_ActionType.JUMP,
           onChange: async (v) => {
             const dir = await Xb_FileUtils.selectDir()

@@ -137,7 +137,7 @@ export struct Versions {
       ListItem() {
         Xb_SettingsItem({
           item: {
-            label: '管理游戏目录',
+            label: '管理目录',
             icon: $r('sys.symbol.folder_badge_ellipsis'),
             actionType: Xb_ActionType.JUMP,
             onChange: () => {

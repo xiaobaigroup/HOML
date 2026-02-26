@@ -34,22 +34,22 @@ struct About {
 
   appearanceSettingsGroups(): Xb_SettingsItemData[] {
     return [
-      {
-        label: '小白工坊',
-        icon: $r('sys.symbol.hand_thumbsup_fill'),
-        actionType: Xb_ActionType.JUMP,
-        onChange: (v) => {
-          const params: XbStudioNavInfo = {
-            needClose: false,
-            iconSize: 20,
-            topRectHeight: 0,
-            itemBackgroundCorlor: $r('sys.color.background_primary'),
-            topButtonColor: $r('sys.color.comp_background_tertiary'),
-            pageBackgroundColor: $r('sys.color.background_secondary')
-          }
-          this.pageStack.pushPathByName('XbStudio', params, true)
-        }
-      },
+      // {
+      //   label: '小白工坊',
+      //   icon: $r('sys.symbol.hand_thumbsup_fill'),
+      //   actionType: Xb_ActionType.JUMP,
+      //   onChange: (v) => {
+      //     const params: XbStudioNavInfo = {
+      //       needClose: false,
+      //       iconSize: 20,
+      //       topRectHeight: 0,
+      //       itemBackgroundCorlor: $r('sys.color.background_primary'),
+      //       topButtonColor: $r('sys.color.comp_background_tertiary'),
+      //       pageBackgroundColor: $r('sys.color.background_secondary')
+      //     }
+      //     this.pageStack.pushPathByName('XbStudio', params, true)
+      //   }
+      // },
       {
         label: '开源仓库',
         icon: $r('sys.symbol.house_fill'),

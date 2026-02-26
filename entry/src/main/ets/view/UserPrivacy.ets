@@ -155,9 +155,9 @@ struct Welcome {
           .width(79)
           .height(79)
           .margin({ bottom: 36 })
-        Text('欢迎来到 Homo Minecraft Launcher')
+        Text('欢迎来到 Homo Launcher')
           .fontSize(18)
-        Text('为了更好的使用体验，请前往设置游戏目录')
+        Text('为了更好的使用体验，请前往设置目录')
           .fontSize(18)
         Blank()
         Row({ space: 12 }) {

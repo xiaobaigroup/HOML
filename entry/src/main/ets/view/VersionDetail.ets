@@ -85,7 +85,7 @@ struct VersionDetail {
 
   getOptions(): Xb_SettingsItemData[] {
     return [
-      {label:"游戏选项", actionType: Xb_ActionType.GROUP},
+      {label:"选项", actionType: Xb_ActionType.GROUP},
       {
         label: "使用全局设置",
         value: this.versionSetting?.global,
@@ -153,7 +153,7 @@ struct VersionDetail {
       {
         label: "关闭文件校验",
         value: this.versionSetting?.fileVerification,
-        content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
+        content: '在启动时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
           if(this.versionSetting){

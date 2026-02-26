@@ -34,7 +34,7 @@ struct GameOptions {
         }
       })
     }
-    .title('全局游戏选项')
+    .title('全局选项')
     .padding({ top: HOMLState.topRectHeight })
     .backgroundColor(this.UIstate.HomeBackground == 'image' && HOMLState.widthBp > 1 ? Color.Transparent : $r('sys.color.ohos_id_color_sub_background'))
     .onReady((ctx) => {
@@ -100,9 +100,9 @@ struct GameOptions {
     ]
     // 拼装
     return [
-      {label:'游戏选项', actionType: Xb_ActionType.GROUP},
+      {label:'选项', actionType: Xb_ActionType.GROUP},
       ...gameItems,
-      {label:'游戏选项', actionType: Xb_ActionType.GROUP},
+      {label:'高级选项', actionType: Xb_ActionType.GROUP},
       ...advancedItems,
       {label:undefined, actionType: Xb_ActionType.GROUP},
       ...advancedStateItems,
@@ -125,10 +125,10 @@ struct GameOptions {
         }
       },
       {
-        label: '自动设置游戏语言',
+        label: '自动设置语言',
         iconColor: HOMLState.currentThemeColor,
         value:  state.globalSetting.autoSetGameLang,
-        content: `自动将游戏语言设置为${'系统语言(简体中文)'}`,
+        content: `自动将语言设置为${'系统语言(简体中文)'}`,
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
           state.globalSetting.autoSetGameLang = v as boolean
@@ -174,7 +174,7 @@ struct GameOptions {
         // UI 语义是“关闭校验”，底层存的是 file_verification
         value: !state.globalSetting.fileVerification,
         iconColor: HOMLState.currentThemeColor,
-        content: '在启动游戏时不校验游戏版本文件完整性，仅建议在您修改了Minecraft版本文件时启用',
+        content: '在启动时不校验版本文件完整性，仅建议在您修改了版本文件时启用',
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
           state.globalSetting.fileVerification = !(v as boolean)
@@ -208,7 +208,7 @@ export function buildVersionSettings(version: VersionSetting): Xb_SettingsItemDa
     },
     {
       label: '服务器Ip',
-      content: '启动游戏后自动连接服务器',
+      content: '启动后自动连接服务器',
       value: version.serverIp,
       actionType: Xb_ActionType.Input,
       onChange: (v) => {
@@ -217,7 +217,7 @@ export function buildVersionSettings(version: VersionSetting): Xb_SettingsItemDa
     },
     {
       label: '附加参数',
-      content: '在启动游戏的命令行命令添加额外参数',
+      content: '在启动的命令行命令添加额外参数',
       value: version.minecraftArgs,
       actionType: Xb_ActionType.Input,
       onChange: (v) => {
@@ -226,7 +226,7 @@ export function buildVersionSettings(version: VersionSetting): Xb_SettingsItemDa
     },
     {
       label: 'Jvm参数',
-      content: 'Jvm添加额外参数',
+      content: 'Jvm的额外参数',
       value: version.javaArgs,
       actionType: Xb_ActionType.Input,
       onChange: (v) => {

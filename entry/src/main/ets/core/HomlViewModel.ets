@@ -158,7 +158,7 @@ export class HomlViewModel {
   async loadZip(){
     const context = Xb_GlobalContext.getContext()
     this.zipLoading = true
-    let gameUri = await Xb_FileUtils.openFile(Xb_GlobalContext.getContext())
+    let gameUri = await Xb_FileUtils.openFile(Xb_GlobalContext.getContext(), [".zip"])
     if(gameUri?.endsWith("zip")){
       try {
         let targetFile = context.tempDir + "/temp.zip";

@@ -68,7 +68,7 @@ export struct Home {
         // 启动游戏
         Button({ type: ButtonType.Normal }) {
           Column({ space: 5 }) {
-            Text('启动 Minecraft')
+            Text('预览虚拟布局')
               .fontSize(18)
               .fontColor($r('sys.color.font_on_primary'))
             // 版本

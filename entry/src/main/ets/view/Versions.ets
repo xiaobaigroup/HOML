@@ -73,15 +73,15 @@ export struct Versions {
         .height('100%')
         // 工具
         Row({ space: 5 }) {
-          Xb_CircleButton({
-            icon: $r('sys.symbol.text_and_arrow_down'),
-            iconBackgroundColor: Color.Transparent,
-            iconColor: $r('sys.color.font_primary'),
-            theBackgroundColor: Color.Transparent,
-            onCheck: () => {
-              Xb_ToastUtil.showToast({ message: '开发中' })
-            }
-          })
+          // Xb_CircleButton({
+          //   icon: $r('sys.symbol.text_and_arrow_down'),
+          //   iconBackgroundColor: Color.Transparent,
+          //   iconColor: $r('sys.color.font_primary'),
+          //   theBackgroundColor: Color.Transparent,
+          //   onCheck: () => {
+          //     Xb_ToastUtil.showToast({ message: '开发中' })
+          //   }
+          // })
           Xb_CircleButton({
             icon: $r('sys.symbol.plus_circle'),
             iconBackgroundColor: Color.Transparent,

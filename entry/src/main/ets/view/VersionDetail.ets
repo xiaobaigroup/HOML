@@ -169,7 +169,7 @@ struct VersionDetail {
     return [
       {
         icon: $r('sys.symbol.play_fill'),
-        title: '启动游戏',
+        title: '预览虚拟布局',
         iconColor: $r('sys.color.font_on_primary'),
         backgroundColor: $r('app.color.green'),
         onAction: async () => {
@@ -177,35 +177,35 @@ struct VersionDetail {
           this.viewmodel.toGame()
         }
       },
-      {
-        icon: $r('sys.symbol.square_and_pencil'),
-        title: '编辑信息',
-        onAction: async () => {
-
-        }
-      },
-      {
-        icon: $r('sys.symbol.folder'),
-        title: '打开目录',
-        onAction: async () => {
-
-        }
-      },
-      {
-        icon: $r('sys.symbol.rectangle_on_rectangle'),
-        title: '创建副本',
-        onAction: async () => {
-
-        }
-      },
-      {
-        icon: $r('sys.symbol.trash'),
-        title: '删除',
-        iconColor: Color.Red,
-        onAction: async () => {
-
-        }
-      }
+      // {
+      //   icon: $r('sys.symbol.square_and_pencil'),
+      //   title: '编辑信息',
+      //   onAction: async () => {
+      //
+      //   }
+      // },
+      // {
+      //   icon: $r('sys.symbol.folder'),
+      //   title: '打开目录',
+      //   onAction: async () => {
+      //
+      //   }
+      // },
+      // {
+      //   icon: $r('sys.symbol.rectangle_on_rectangle'),
+      //   title: '创建副本',
+      //   onAction: async () => {
+      //
+      //   }
+      // },
+      // {
+      //   icon: $r('sys.symbol.trash'),
+      //   title: '删除',
+      //   iconColor: Color.Red,
+      //   onAction: async () => {
+      //
+      //   }
+      // }
     ]
   }
 

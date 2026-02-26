@@ -15,7 +15,7 @@ struct ControllerLayout {
     NavDestination() {
       Xb_GameLayout({inGame: false, onNormKeyCode: FCLKeycodes.onNormKeyCode})
     }
-    .title('控制器布局')
+    .title('虚拟控制器布局')
     .backgroundColor(Color.Gray)
     .padding({ top: HOMLState.topRectHeight })
   }

@@ -1,7 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want, common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
-import { SmartAvoidance, Xb_AvoidanceManager, Xb_GlobalContext, Xb_ToastUtil } from 'xb_components';
+import { SmartAvoidance, Xb_AvoidanceManager, Xb_Global, Xb_GlobalContext, Xb_ToastUtil } from 'xb_components';
 import { HOMLState, _HOMLState } from './AppState';
 import display from '@ohos.display';
 
@@ -15,6 +15,7 @@ export default class EntryAbility extends UIAbility {
   private avoidListener: (avoidance: SmartAvoidance) => void = (newAvoidance) => {
     HOMLState.bottomRectHeight = newAvoidance.bottom
     HOMLState.topRectHeight = newAvoidance.top
+    Xb_Global.TopRectHeight = newAvoidance.top
     HOMLState.leftAvoidWidth = newAvoidance.left
     HOMLState.rightAvoidWidth = newAvoidance.right
   }

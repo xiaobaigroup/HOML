@@ -21,5 +21,5 @@ export class VersionSetting {
   @Trace serverIp: string = ""
   @Trace renderer: string = RENDERER_LIB.RENDERER_NAME_MOBILEGLUES
   @Trace uuid: string = ""
-  @Trace controller: string = ""
+  @Trace controller: string = "00000000"
 }

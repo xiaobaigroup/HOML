@@ -3,6 +3,9 @@ import { nativeInput } from "./NativeInput";
 
 @ObservedV2
 export class GameViewModel implements Xb_ControllerEventHandler{
+  onAxisEvent(e: AxisEvent): void {
+
+  }
   onKeyEvent(e: KeyEvent): void {
     nativeInput.handleKeyEvent(e)
   }

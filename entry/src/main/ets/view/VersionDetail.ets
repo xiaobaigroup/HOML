@@ -2,6 +2,7 @@ import {
   hasJit,
   Xb_ActionType, Xb_CapsuleButton, Xb_getAppStore, Xb_getPersistenceByName,
   Xb_MakeSettingsGroupData,
+  Xb_MenuSelectItem,
   Xb_SettingsItemData,
   Xb_ToastUtil} from "xb_components"
 import { PADDING_VALUE_12 } from "xb_components/src/main/ets/components/Constants"
@@ -105,6 +106,20 @@ struct VersionDetail {
         onChange: (v) => {
           if(this.versionSetting){
             this.versionSetting.isolation = v as boolean
+          }
+        }
+      },
+      {
+        label: "虚拟布局",
+        value: this.versionSetting?.controller,
+        content: '支持导入导出自定义布局文件',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: this.viewmodel.controllerViewModel.controllerList.map(d=>{
+          return { label:d.name, value:d.id ?? d.name} as Xb_MenuSelectItem
+        }),
+        onChange: (v) => {
+          if(this.versionSetting){
+            this.versionSetting.controller = v as string
           }
         }
       },

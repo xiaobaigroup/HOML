@@ -1,6 +1,7 @@
 import { Xb_ActionType, Xb_SettingsItem, Xb_SettingsItemData,
   Xb_getPersistence,
-  Xb_MakeSettingsGroupData} from "xb_components"
+  Xb_MakeSettingsGroupData,
+  Xb_MenuSelectItem} from "xb_components"
 import { SettingsListView } from "../components/SettingsListView"
 import { HOMLState, UISettings, _HOMLState } from "../entryability/AppState"
 import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
@@ -132,6 +133,20 @@ struct GameOptions {
         actionType: Xb_ActionType.TOGGLE,
         onChange: (v) => {
           state.globalSetting.autoSetGameLang = v as boolean
+        }
+      },
+      {
+        label: "虚拟布局",
+        value: state.globalSetting?.controller,
+        content: '支持导入导出自定义布局文件',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: this.viewModel.controllerViewModel.controllerList.map(d=>{
+          return { label:d.name, value:d.id ?? d.name } as Xb_MenuSelectItem
+        }),
+        onChange: (v) => {
+          if(state.globalSetting){
+            state.globalSetting.controller = v as string
+          }
         }
       },
       {

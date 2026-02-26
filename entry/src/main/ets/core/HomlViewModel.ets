@@ -1,7 +1,9 @@
 import {
   hasJit,
   Xb_FileUtils,
+  Xb_GameControllerViewModel,
   Xb_GameMenuState,
+  Xb_getAppStore,
   Xb_getPersistence,
   Xb_getPersistenceByName, Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
 import { zlib } from "@kit.BasicServicesKit";
@@ -14,6 +16,7 @@ import { GameProfile, HomeDirectoryType } from "../model/GameProfile";
 import { MicrosoftService } from "../auth/MicrosoftService";
 import { OAuthServer } from "../auth/OAuthServer";
 import { HOMLState } from "../entryability/AppState";
+import { FCLKeycodes } from "./FCLKeycode";
 
 @ObservedV2
 export class HomlViewModel {
@@ -22,7 +25,7 @@ export class HomlViewModel {
   @Trace current?: MinecraftVersion
   @Trace gameProfile: GameProfile = Xb_getPersistence(GameProfile, ()=>new GameProfile())!;
   @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
-
+  @Trace controllerViewModel: Xb_GameControllerViewModel = Xb_getAppStore(Xb_GameControllerViewModel, ()=> new Xb_GameControllerViewModel())!
   @Trace zipLoading: boolean = false
   @Trace homeDir: string = ""
   @Trace gameRootDir: string = ""
@@ -53,8 +56,9 @@ export class HomlViewModel {
   async toGame(){
     if(hasJit()){
       HOMLState.pageStack.pushPathByName("GamePage", true)
-
     }else {
+      const versionSettings = getVersionSetting(this.current!.id)
+      this.controllerViewModel.switchController(versionSettings.controller)
       HOMLState.pageStack.pushPathByName("virtual_control_button", true)
       // Xb_ToastUtil.showDialog({title:"暂未开放", message:"未申请JIT权限! 建议使用其他功能.",buttons:[{color:$r("app.color.emphasize"),text:"好的"}]}, ()=>{
       // })
@@ -101,6 +105,7 @@ export class HomlViewModel {
   async initHome(){
     await this.changeHome()
     this.hasJit = hasJit()
+    this.controllerViewModel.loadControllerList(Xb_GlobalContext.getContext(), undefined, FCLKeycodes.onNormKeyCode)
   }
 
   async loadVersions(){

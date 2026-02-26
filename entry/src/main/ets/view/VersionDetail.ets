@@ -169,7 +169,7 @@ struct VersionDetail {
     return [
       {
         icon: $r('sys.symbol.play_fill'),
-        title: '预览虚拟布局',
+        title: this.viewmodel.hasJit ? "启动游戏": '预览虚拟布局',
         iconColor: $r('sys.color.font_on_primary'),
         backgroundColor: $r('app.color.green'),
         onAction: async () => {

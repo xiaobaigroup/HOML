@@ -28,6 +28,7 @@ export class HomlViewModel {
   @Trace gameRootDir: string = ""
 
   @Trace searchVersion: string = ""
+  @Trace hasJit = false
 
   ms: MicrosoftService = new MicrosoftService(new OAuthServer())
 
@@ -52,9 +53,11 @@ export class HomlViewModel {
   async toGame(){
     if(hasJit()){
       HOMLState.pageStack.pushPathByName("GamePage", true)
+
     }else {
-      Xb_ToastUtil.showDialog({title:"暂未开放", message:"未申请JIT权限! 建议使用其他功能.",buttons:[{color:$r("app.color.emphasize"),text:"好的"}]}, ()=>{
-      })
+      HOMLState.pageStack.pushPathByName("virtual_control_button", true)
+      // Xb_ToastUtil.showDialog({title:"暂未开放", message:"未申请JIT权限! 建议使用其他功能.",buttons:[{color:$r("app.color.emphasize"),text:"好的"}]}, ()=>{
+      // })
     }
   }
   async changeHome(){
@@ -97,6 +100,7 @@ export class HomlViewModel {
   }
   async initHome(){
     await this.changeHome()
+    this.hasJit = hasJit()
   }
 
   async loadVersions(){

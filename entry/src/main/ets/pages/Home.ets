@@ -68,7 +68,7 @@ export struct Home {
         // 启动游戏
         Button({ type: ButtonType.Normal }) {
           Column({ space: 5 }) {
-            Text('预览虚拟布局')
+            Text(this.viewmodel.hasJit ? "启动游戏": '预览虚拟布局')
               .fontSize(18)
               .fontColor($r('sys.color.font_on_primary'))
             // 版本

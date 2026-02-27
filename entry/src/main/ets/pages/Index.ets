@@ -28,13 +28,9 @@ struct Index {
   private panOptionL: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Left })
   private panOptionR: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Right })
 
-  aboutToAppear(): void {
+   aboutToAppear(): void {
     Xb_CrashUtils.initPathStack(HOMLState.pageStack)
     this.viewmodel.initHome()
-    // TODO 添加 loading
-    // 默认安装jre25
-    installJre(this.getUIContext().getHostContext()!, JAVA_VERSION.JAVA25)
-    installJre(this.getUIContext().getHostContext()!, JAVA_VERSION.JAVA17)
     // 注册所有事件
     this.registerEvent()
     // 发送初始化事件

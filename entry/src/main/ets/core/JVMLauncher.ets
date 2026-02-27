@@ -6,6 +6,7 @@ import { getRunDirectory } from "./HomlViewModel";
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting";
 import { MinecraftVersion } from "../model/MinecraftVersion";
 import { HOMLBridge } from "./HOMLBridge";
+import { hasJreXz, installJre } from "../utils";
 
 
 export enum JAVA_VERSION{
@@ -40,17 +41,19 @@ export class JVMLauncher {
     this.jre = JAVA_VERSION.JAVA25
   }
   async switchJre(jre: JAVA_VERSION): Promise<boolean>{
+    const context = Xb_GlobalContext.getContext()
     this.jre = jre
-    if (!hasJre(jre)){
-      Xb_ToastUtil.showToast({message:`请安装hsp文件(${jre})`})
+    if (!hasJreXz(context, jre)){
+      Xb_ToastUtil.showToast({message:`请安装hsp(${jre})`})
       return false
     }
     try {
+      await installJre(context, jre)
       let ns: ESObject = await import(jre);
       this.bridge = ns.homl_bridge
       return true
     }catch (e) {
-      Xb_ToastUtil.showToast({message:"加载hsp失败:"+ e.message})
+      Xb_ToastUtil.showToast({message:`加载hsp(${jre})失败:` + e.message})
     }
     return false
   }

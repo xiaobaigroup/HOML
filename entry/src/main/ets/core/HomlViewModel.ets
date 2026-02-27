@@ -54,7 +54,7 @@ export class HomlViewModel {
 
   }
   async toGame(){
-    if(hasJit()){
+    if (hasJit()){
       if(await this.switchJre()){
         HOMLState.pageStack.pushPathByName("GamePage", true)
       }

@@ -37,8 +37,8 @@ export class NativeInput {
   }
   public sendChar(char: string, mods: number = 0){
     let code = char.codePointAt(0);
-    jvmLauncher.bridge.send_char_mods(code, mods);
-    jvmLauncher.bridge.send_char(code);
+    jvmLauncher.bridge.send_char_mods(code!, mods);
+    jvmLauncher.bridge.send_char(code!);
   }
   sendBackspace() {
     this.sendNativeKeycode(KeyCode.KEYCODE_BACK, '\u0008', 0, this.getCurrentMods(), true)
@@ -125,7 +125,7 @@ export class NativeInput {
       if(down)
         jvmLauncher.bridge.send_scroll(0, -1)
     } else {
-      jvmLauncher.bridge.send_mouse_button(code, down ? 1 : 0, 0)
+      jvmLauncher.bridge.send_mouse_button(code!, down ? 1 : 0, 0)
     }
   }
 

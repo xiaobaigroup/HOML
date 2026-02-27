@@ -55,9 +55,10 @@ export class HomlViewModel {
   }
   async toGame(){
     if(hasJit()){
-      await this.switchJre()
-      HOMLState.pageStack.pushPathByName("GamePage", true)
-    }else {
+      if(await this.switchJre()){
+        HOMLState.pageStack.pushPathByName("GamePage", true)
+      }
+    } else {
       const versionSettings = getVersionSetting(this.current!.id)
       this.controllerViewModel.switchController(versionSettings.controller)
       HOMLState.pageStack.pushPathByName("virtual_control_button", true)
@@ -194,7 +195,7 @@ export class HomlViewModel {
   async switchJre(){
     const id = this.current!.id
     const settings = getVersionSetting(id)
-    await jvmLauncher.switchJre(settings.jreVersion)
+    return await jvmLauncher.switchJre(settings.jreVersion)
   }
 }
 

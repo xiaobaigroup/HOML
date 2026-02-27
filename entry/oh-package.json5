@@ -5,10 +5,11 @@
   "main": "",
   "author": "",
   "license": "",
+  "devDependencies": {
+    "jre25": "file:../libs/jre25",
+    "jre17": "file:../libs/jre17"
+  },
   "dependencies": {
     "xb_components": "file:../xb_components",
-    "jre25": "file:../libs/jre25",
-    "jre17": "file:../libs/jre17",
-
   }
 }

@@ -2,6 +2,8 @@
 import { archiveLib } from '@mysoft/archive'
 import { fileIo } from '@kit.CoreFileKit'
 
+
+
 export const installJre = async (context: Context, version: string)=> {
   let target = context.resourceDir.replace("bundle/entry", "bundle/"+version) + "/" + version + "-ohos-arm64.tar.xz"
   let out = context.filesDir +"/" + version

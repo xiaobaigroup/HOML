@@ -7,7 +7,6 @@
       }
     },
     "externalNativeOptions": {
-      "path": "./src/main/cpp/CMakeLists.txt",
       "arguments": "",
       "cppFlags": "",
       "abiFilters": [
@@ -20,6 +19,9 @@
     {
       "name": "release",
       "arkOptions": {
+        "runtimeOnly": {
+          "packages": [ "jre25", "jre17" ],  // 配置本模块变量动态import其他模块名，要求与dependencies中配置的名字一致。
+        },
         "obfuscation": {
           "ruleOptions": {
             "enable": false,

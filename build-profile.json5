@@ -58,6 +58,10 @@
       "srcPath": "./xb_components",
     },
     {
+      "name": "lwjgl3",
+      "srcPath": "./libs/lwjgl3",
+    },
+    {
       "name": "jre25",
       "srcPath": "./libs/jre25",
       "targets": [

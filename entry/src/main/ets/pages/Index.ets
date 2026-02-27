@@ -1,4 +1,3 @@
-import { install as installJre25 } from 'jre25';
 import { EventHub, Xb_ColorModeManager,
   Xb_CrashUtils,
   Xb_getAppStore, Xb_getPersistence,
@@ -12,7 +11,9 @@ import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth,
 import { EventKey } from '../common/EventKey';
 import { getColorWithTransparency } from '../common/util/ColorWithTransparency';
 import { HomlViewModel } from '../core/HomlViewModel';
+import { JAVA_VERSION } from '../core/JVMLauncher';
 import { HOMLState, UISettings, _HOMLState } from '../entryability/AppState';
+import { installJre } from '../utils';
 import { User } from '../view/UserPrivacy';
 import { Home } from './Home';
 import { Settings } from './Settings';
@@ -32,7 +33,8 @@ struct Index {
     this.viewmodel.initHome()
     // TODO 添加 loading
     // 默认安装jre25
-    installJre25(this.getUIContext().getHostContext()!)
+    installJre(this.getUIContext().getHostContext()!, JAVA_VERSION.JAVA25)
+    installJre(this.getUIContext().getHostContext()!, JAVA_VERSION.JAVA17)
     // 注册所有事件
     this.registerEvent()
     // 发送初始化事件

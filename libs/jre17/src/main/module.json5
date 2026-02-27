@@ -1,0 +1,15 @@
+{
+  "module": {
+    "name": "jre17",
+    "type": "shared",
+    "libIsolation": true,
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1",
+      "car",
+      "tv"
+    ],
+    "deliveryWithInstall": true
+  }
+}

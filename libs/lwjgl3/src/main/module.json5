@@ -1,0 +1,12 @@
+{
+  "module": {
+    "name": "lwjgl3",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1",
+      "tv"
+    ]
+  }
+}

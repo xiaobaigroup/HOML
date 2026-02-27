@@ -6,8 +6,8 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "libhoml_bridge.so": "file:./src/main/cpp/types/libhoml_bridge",
-    "libentry.so": "file:./src/main/cpp/types/libentry",
-    "xb_components": "file:../xb_components"
+    "xb_components": "file:../xb_components",
+    "jre25": "file:../libs/jre25",
+    "jre17": "file:../libs/jre17"
   }
 }

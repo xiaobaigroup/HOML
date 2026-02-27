@@ -56,6 +56,30 @@
     {
       "name": "xb_components",
       "srcPath": "./xb_components",
+    },
+    {
+      "name": "jre25",
+      "srcPath": "./libs/jre25",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "jre17",
+      "srcPath": "./libs/jre17",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default"
+          ]
+        }
+      ]
     }
   ]
 }

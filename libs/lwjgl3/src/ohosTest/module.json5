@@ -1,0 +1,14 @@
+{
+  "module": {
+    "name": "lwjgl3_test",
+    "type": "feature",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1",
+      "tv"
+    ],
+    "deliveryWithInstall": true,
+    "installationFree": false
+  }
+}

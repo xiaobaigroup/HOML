@@ -1,16 +1,23 @@
-import { jvm_Launcher, set_env as setenv, dl_open} from "libhoml_bridge.so";
+import { HOMLBridge } from "jre25";
+
 import { Context } from "@kit.AbilityKit";
 import { fileIo } from "@kit.CoreFileKit";
-import { Xb_getAppStore, Xb_ToastUtil } from "xb_components";
+import {  Xb_ToastUtil } from "xb_components";
 import { getRunDirectory } from "./HomlViewModel";
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting";
+import { MinecraftVersion } from "../model/MinecraftVersion";
+
+
 
 
 export enum JAVA_VERSION{
+  JAVA8 = "jre8",
   JAVA17 = "jre17",
   JAVA21 = "jre21",
   JAVA25 = "jre25",
 }
+
+
 
 
 interface  LaunchTarget {
@@ -18,10 +25,28 @@ interface  LaunchTarget {
     homeDir: string
     gameRootDir: string
     settings?: VersionSetting
+    version: MinecraftVersion
     arguments?: string[]
 }
+
 export class JVMLauncher {
-  static jreVersion: string = JAVA_VERSION.JAVA25
+  bridge!: HOMLBridge
+  jre: string = JAVA_VERSION.JAVA17
+  constructor() {
+    this.jre = JAVA_VERSION.JAVA25
+    //this.switchJre(JAVA_VERSION.JAVA25)
+  }
+  async switchJre(jre: JAVA_VERSION): Promise<void>{
+    this.jre = jre
+    if(jre == JAVA_VERSION.JAVA17){
+      let ns: ESObject = await import('jre17');
+      this.bridge = ns.homl_bridge
+    }else{
+      let ns:ESObject = await import('jre25');
+      this.bridge = ns.homl_bridge
+    }
+  }
+
   launch(
     context: Context,
     username: string,
@@ -29,12 +54,11 @@ export class JVMLauncher {
     width = 900, height = 900
   ) {
 
-    const jreVersion = JVMLauncher.jreVersion
-
+    const jreVersion = this.jre
     let appName = "鸿蒙版";
-    let javaHome = context.resourceDir + `/${jreVersion}`;
+    let javaHome = context.resourceDir.replace("bundle/entry", "bundle/"+ jreVersion) + `/${jreVersion}`;
     let dirCache = context.tempDir;
-    let nativeLibDir = context.bundleCodeDir + "/libs/arm64/";
+    let nativeLibDir = context.bundleCodeDir + `/${jreVersion}/libs/arm64/`;
     let dirAccountNew = username
     let displayWidth = width.toFixed(0);
     let displayHeight = height.toFixed(0);
@@ -43,6 +67,7 @@ export class JVMLauncher {
     let dirGameNew = (launchTarget as LaunchTarget)?.gameRootDir
     let dirHome = (launchTarget as LaunchTarget)?.homeDir
     let version = (launchTarget as LaunchTarget)?.id
+    let versionData = (launchTarget as LaunchTarget)?.version
     let maxMemory = settings?.maxMemory
     let minMemory = settings?.minMemory
     let jvmMemory: string[] = []
@@ -58,7 +83,7 @@ export class JVMLauncher {
     let renderer = settings?.renderer ?? RENDERER_LIB.RENDERER_NAME_MOBILEGLUES
     const overridableArguments = [
       nativeLibDir + "/bin/java",
-      ...javaArgs.filter(d => d != "noXmx"),
+      ...javaArgs.filter(d => d != "" && d != "noXmx"),
       `-Djava.home=${javaHome}`,
       `-DServer_Ip=${serverIp}`,
       `-Djava.io.tmpdir=${dirCache}`,
@@ -112,9 +137,7 @@ export class JVMLauncher {
     ];
 
     overridableArguments.push(`-javaagent:${context.resourceDir}/patchjna_agent.jar=`)
-    if (true) {
-      overridableArguments.push(`-javaagent:${context.resourceDir}/arc_dns_injector.jar=23.95.137.176`)
-    }
+    overridableArguments.push(`-javaagent:${context.resourceDir}/arc_dns_injector.jar=23.95.137.176`)
     let isJre8 = false
     //TODO awt 目前不能工作
     let cacioEnv: string[] = [
@@ -140,17 +163,16 @@ export class JVMLauncher {
         "--add-exports=java.desktop/sun.awt.datatransfer=ALL-UNNAMED",
         "--add-exports=java.desktop/sun.font=ALL-UNNAMED",
         "--add-exports=java.base/sun.security.action=ALL-UNNAMED",
-        "--add-opens=java.base/java.util=ALL-UNNAMED",
         "--add-opens=java.desktop/java.awt=ALL-UNNAMED",
         "--add-opens=java.desktop/sun.font=ALL-UNNAMED",
         "--add-opens=java.desktop/sun.java2d=ALL-UNNAMED",
+        "--add-opens=java.base/java.util=ALL-UNNAMED",
         "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
         "--add-opens=java.base/java.net=ALL-UNNAMED",
-        // TODO: workaround, will be removed once the startup part works without PLaunchApp
-        "--add-exports=cpw.mods.bootstraplauncher/cpw.mods.bootstraplauncher=ALL-UNNAMED",
       ]]
     } else {
     }
+
     overridableArguments.push(...cacioEnv)
     // Add Caciocavallo bootclasspath
     let list = fileIo.listFileSync(context.resourceDir + "/app_runtime/caciocavallo17")
@@ -165,7 +187,7 @@ export class JVMLauncher {
       let suppend = "y"
       overridableArguments.push(`-agentlib:jdwp=transport=dt_socket,server=y,suspend=${suppend},address=0.0.0.0:5005`)
     }
-    let classPath = context.resourceDir + "/*:" + context.resourceDir + "/launcher.jar";
+    let classPath = context.resourceDir + "/*";
     let jar = true;
 
     classPath += (":" + context.resourceDir + "/app_runtime/oshi-core-6.3.0.jar")
@@ -178,7 +200,18 @@ export class JVMLauncher {
     if (!jar) {
       overridableArguments.push("-Djava.system.class.loader=net.kdt.pojavlaunch.PojavClassLoader")
     }
-    overridableArguments.push("-cp", classPath, "net.kdt.pojavlaunch.PojavLauncher")
+    const argMap: Record<string,string> = {
+      "launcher_name": "homl",
+      "launcher_version": "1.0.0",
+      "classpath": classPath,
+      "classpath_separator": ":",
+      "library_directory": dirGameNew + "/libraries",
+      "version_name": version,
+      "natives_directory": context.cacheDir,
+    }
+    const jvmArgs = this.getMinecraftJVMArgs(versionData, argMap)
+    overridableArguments.push(...jvmArgs)
+    overridableArguments.push("net.kdt.pojavlaunch.PojavLauncher")
     if (jar) {
       overridableArguments.push("-jar")
     } else {
@@ -189,11 +222,12 @@ export class JVMLauncher {
     } else {
       overridableArguments.push(version)
     }
-    if(this.initEnv(context, dirHome, jreVersion, renderer)){
-      jvm_Launcher(overridableArguments)
+    if(this.initEnv(context, dirHome, javaHome, nativeLibDir, renderer)){
+      this.bridge.jvm_Launcher(overridableArguments)
     }
   }
-   initEnv(context: Context, dirHome:string, jreVersion: string, glibName: string): boolean{
+   initEnv(context: Context, dirHome:string, java_home: string, java_dl_dir: string,  glibName: string): boolean{
+    const setenv = this.bridge.set_env
     if (glibName == RENDERER_LIB.RENDERER_NAME_NG_GL4ES){
       setenv("POJAV_RENDERER", "opengles3");
     }
@@ -215,14 +249,11 @@ export class JVMLauncher {
 
     setenv("ALSOFT_LOGLEVEL", "0");
     // hap需要手动设置 javahome和dl_dir
-    let java_dl_dir =  context.bundleCodeDir + "/libs/arm64/";
     setenv("OHOS_DL_DIR", java_dl_dir);
-    setenv("OHOS_JAVA_HOME", "/data/storage/el1/bundle/entry/resources/resfile/" + jreVersion);
+    setenv("OHOS_JAVA_HOME", java_home);
     setenv("LD_LIBRARY_PATH", java_dl_dir);
-    setenv("jli_path", java_dl_dir + "/libjli.so");
-    // TODO 修改修改支持绝对路径，目前不支持load libjvm.so，不能动态切换java版本
-    // let ret = dl_open("/data/storage/el1/bundle/libs/arm64/jre25/libjimage.so")
-    let ret = dl_open(glibName);
+    setenv("jli_path", java_dl_dir + "libjli.so");
+    let ret =  this.bridge.dl_open(glibName);
     if(!ret){
       if(glibName == RENDERER_LIB.RENDERER_NAME_GLV4){
         Xb_ToastUtil.showToast({message: "当前图形驱动仅鸿蒙pc或平板可用"})
@@ -232,7 +263,35 @@ export class JVMLauncher {
     }
     return ret;
   }
+ getMinecraftJVMArgs(version: MinecraftVersion | undefined, argsMap: Record<string,string> = {}): string[]{
+    if(!version || !version.arguments || !version.arguments.jvm)
+      return ["-cp", argsMap["classpath"]]
+    const jvmArgs :string[] = []
+    version.arguments.jvm.forEach(arg=>{
+      if(typeof arg == "string"){
+        jvmArgs.push(arg)
+      }
+    })
+    return replaceAllArgs(jvmArgs, argsMap)
+  }
 
+}
+
+
+
+function replaceAllArgs(args: string[], kv: Record<string,string>){
+  const replaceOneArgs = (value: string, kv: Record<string,string>)=>{
+    let newValue = value;
+    for (let k of Object.keys(kv)){
+      newValue = newValue.replaceAll('$'+`{${k}}`, kv[k] ?? "")
+    }
+    return newValue;
+  }
+
+  for (let i = 0; i < args.length; i++) {
+    args[i] = replaceOneArgs(args[i], kv)
+  }
+  return args
 }
 
 export const jvmLauncher = new JVMLauncher()

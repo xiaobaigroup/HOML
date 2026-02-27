@@ -8,6 +8,7 @@ import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { HomlViewModel } from "../core/HomlViewModel"
+import { JAVA_VERSION } from "../core/JVMLauncher"
 
 @Builder
 export function GameOptionsBuilder(name: string, param: Object) {
@@ -147,6 +148,28 @@ struct GameOptions {
           if(state.globalSetting){
             state.globalSetting.controller = v as string
           }
+        }
+      },
+      {
+        label: "Java版本",
+        value: state.globalSetting?.jreVersion,
+        content: '切换java运行时版本',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: [
+          {label:"java8", value: JAVA_VERSION.JAVA8},
+          {label:"java17", value: JAVA_VERSION.JAVA17},
+          {label:"java21", value: JAVA_VERSION.JAVA21},
+          {label:"java25", value: JAVA_VERSION.JAVA25},
+        ],
+        menuDisabled:(item, index: number)=>{
+          if(item.value == JAVA_VERSION.JAVA17 || item.value == JAVA_VERSION.JAVA25 ){
+            return false
+          }else{
+            return true
+          }
+        },
+        onChange: (v) => {
+          state.globalSetting.jreVersion = v as JAVA_VERSION
         }
       },
       {

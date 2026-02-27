@@ -55,13 +55,12 @@ export class HomlViewModel {
   }
   async toGame(){
     if(hasJit()){
+      await this.switchJre()
       HOMLState.pageStack.pushPathByName("GamePage", true)
     }else {
       const versionSettings = getVersionSetting(this.current!.id)
       this.controllerViewModel.switchController(versionSettings.controller)
       HOMLState.pageStack.pushPathByName("virtual_control_button", true)
-      // Xb_ToastUtil.showDialog({title:"暂未开放", message:"未申请JIT权限! 建议使用其他功能.",buttons:[{color:$r("app.color.emphasize"),text:"好的"}]}, ()=>{
-      // })
     }
   }
   async changeHome(){
@@ -186,10 +185,16 @@ export class HomlViewModel {
   launch(){
     const id = this.current!.id
     const gameMenuState = Xb_getPersistence(Xb_GameMenuState)
+    const settings = getVersionSetting(id)
     jvmLauncher.launch(Xb_GlobalContext.getContext(),
       "xiaobai",
-      {id: this.current!.id, homeDir: this.homeDir, gameRootDir: this.gameRootDir, settings: getVersionSetting(id),arguments:[]},
+      {id: this.current!.id, homeDir: this.homeDir, gameRootDir: this.gameRootDir, settings: settings, version: this.current!, arguments:[]},
       gameMenuState?.screenWidth, gameMenuState?.screenHeight)
+  }
+  async switchJre(){
+    const id = this.current!.id
+    const settings = getVersionSetting(id)
+    await jvmLauncher.switchJre(settings.jreVersion)
   }
 }
 

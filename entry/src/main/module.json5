@@ -4,6 +4,7 @@
     "type": "entry",
     "description": "$string:module_desc",
     "mainElement": "EntryAbility",
+    "libIsolation": false,
     "deviceTypes": [
       "phone",
       "tablet",
@@ -20,7 +21,8 @@
       {"name": "ohos.permission.kernel.ALLOW_WRITABLE_CODE_MEMORY"},
       {"name": "ohos.permission.LOCK_WINDOW_CURSOR"},
       {"name": "ohos.permission.FILE_ACCESS_PERSIST"},
-      {"name": "ohos.permission.NDK_START_SELF_UI_ABILITY"}],
+      {"name": "ohos.permission.NDK_START_SELF_UI_ABILITY"}
+    ],
     "abilities": [
       {
         "name": "EntryAbility",

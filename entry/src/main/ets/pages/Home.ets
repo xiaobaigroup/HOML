@@ -22,7 +22,7 @@ export struct Home {
       Column({ space: 10 }) {
         if (HOMLState.showUserInfo) {
           this.avatarAndName()
-          this.UserInfoConfig()
+          // this.UserInfoConfig()
         } else {
           Text('早上好，')
             .fontSize(18)

@@ -1,11 +1,13 @@
 import { Xb_GameLayout, Xb_GameMenuState, Xb_getAppStore, Xb_getPersistence, Xb_GlobalContext } from "xb_components";
-import { nativeInput } from "../core/NativeInput";
+import {KeyboardAvoidMode} from '@kit.ArkUI'
 import { KeyCode } from "@kit.InputKit";
 import { FCLKeycodes } from "../core/FCLKeycode";
 import { GameViewModel } from "../core/GameViewModel";
 import { HomlViewModel } from "../core/HomlViewModel";
 import { surfaceChanged } from "libhoml_bridge.so";
 import { window } from "@kit.ArkUI";
+import { LogsView } from "../view/LogsView";
+import { NativeInput } from "../core/NativeInput";
 
 class GameXComponentController extends XComponentController{
   onSurfaceCreated(surfaceId: string): void {
@@ -22,12 +24,12 @@ export function GameBuilder(route: string, version:string){
   Game({version})
 }
 
-@Entry
 @ComponentV2
 struct Game {
   xController = new GameXComponentController();
   @Param @Require version: string
   @Local viewModel: HomlViewModel = Xb_getAppStore(HomlViewModel, ()=> new HomlViewModel())!
+  @Local nativeInput: NativeInput = Xb_getAppStore(NativeInput, ()=> new NativeInput())!
 
   @LocalBuilder
   gameView(){
@@ -41,18 +43,22 @@ struct Game {
           this.viewModel.launch()
         }, 1000)
       })
-    //LogsView()
+      LogsView()
   }
   build() {
     NavDestination(){
       Xb_GameLayout({gameView: this.gameView, eventHandler: new GameViewModel(), inGame: true, onNormKeyCode: FCLKeycodes.onNormKeyCode})
-    }.hideTitleBar(true)
+    }.hideTitleBar(true).onBackPressed(()=>{
+      this.nativeInput.sendKeyEvent(KeyCode.KEYCODE_ESCAPE, true)
+      return true;
+    })
   }
   onBackPress(): boolean | void {
-    nativeInput.sendKeyEvent(KeyCode.KEYCODE_ESCAPE, true)
-    return false;
+    this.nativeInput.sendKeyEvent(KeyCode.KEYCODE_ESCAPE, true)
+    return true;
   }
   aboutToAppear(): void {
+
     let orientation = window.Orientation.LANDSCAPE
     this.setScreenOrientation(orientation)
   }
@@ -63,8 +69,11 @@ struct Game {
   }
   setScreenOrientation(orientation: window.Orientation) {
     let windowClass: window.Window | undefined = undefined;
+    const context = this.getUIContext()
+    context.setKeyboardAvoidMode(KeyboardAvoidMode.NONE)
     window.getLastWindow(Xb_GlobalContext.getContext()).then((data) => {
       windowClass = data
+      windowClass.setWindowSystemBarEnable([])
       windowClass.setPreferredOrientation(orientation).catch((error: BusinessError) => {
         console.error(`setPreferredOrientation error name: ${error.name} message: ${error.message}`)
       })

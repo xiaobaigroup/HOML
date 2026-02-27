@@ -24,6 +24,10 @@
       "name": "virtual_control_button",
       "pageSourceFile": "src/main/ets/view/ControllerLayout.ets",
       "buildFunction": "ControllerLayoutBuilder"
+    },{
+      "name": "GamePage",
+      "pageSourceFile": "src/main/ets/pages/Game.ets",
+      "buildFunction": "GameBuilder"
     },
     {
       "name": "image_edit",

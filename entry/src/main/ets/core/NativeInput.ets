@@ -1,11 +1,12 @@
-import { send_key, send_cursor_pos, send_mouse_button, on_cursor_enabled, send_char_mods, send_char } from "libhoml_bridge.so";
+
 import { KeyCode, } from "@kit.InputKit";
 import LWJGLGLFWKeycode, { toGLFW } from "./LWJGLKeycode";
+
 import { Xb_getPersistence, Xb_GameMenuState, Xb_MouseButtonCode } from "xb_components";
+import { jvmLauncher } from "./JVMLauncher";
 
 export class NativeInput {
-  menu: Xb_GameMenuState = Xb_getPersistence(Xb_GameMenuState)!
-
+  menu: Xb_GameMenuState = Xb_getPersistence(Xb_GameMenuState, ()=>new Xb_GameMenuState())!
   OHOS_MOUSE_MAP: Map<number, number> = new Map([
     [Xb_MouseButtonCode.Left, LWJGLGLFWKeycode.MOUSE_BUTTON_1],
     [Xb_MouseButtonCode.Right, LWJGLGLFWKeycode.MOUSE_BUTTON_2],
@@ -14,14 +15,14 @@ export class NativeInput {
     [Xb_MouseButtonCode.Back, LWJGLGLFWKeycode.MOUSE_BUTTON_5],
   ])
   constructor() {
-    on_cursor_enabled((result: boolean)=>{
+    jvmLauncher.bridge.on_cursor_enabled((result: boolean)=>{
       console.debug("NativeInput on_cursor_enabled: " + result)
       const menu = Xb_getPersistence(Xb_GameMenuState)!
       menu.cursorEnabled = !result;
     })
   }
   public sendCursor(x:number, y: number){
-    send_cursor_pos(x, y)
+    jvmLauncher.bridge.send_cursor_pos(x, y)
   }
   public handleKeyEvent(event: KeyEvent){
     const keycode = event.keyCode
@@ -36,8 +37,8 @@ export class NativeInput {
   }
   public sendChar(char: string, mods: number = 0){
     let code = char.codePointAt(0);
-    send_char_mods(code, mods);
-    send_char(code);
+    jvmLauncher.bridge.send_char_mods(code, mods);
+    jvmLauncher.bridge.send_char(code);
   }
   sendBackspace() {
     this.sendNativeKeycode(KeyCode.KEYCODE_BACK, '\u0008', 0, this.getCurrentMods(), true)
@@ -48,8 +49,8 @@ export class NativeInput {
     this.sendKeyEvent(KeyCode.KEYCODE_ENTER, false);
   }
   public sendCharByUnicode(char: number, mods: number = 0){
-    send_char_mods(char, mods);
-    send_char(char);
+    jvmLauncher.bridge.send_char_mods(char, mods);
+    jvmLauncher.bridge.send_char(char);
   }
   public sendKeyEvent(code: number, press: boolean){
     if (this.OHOS_MOUSE_MAP.has(code)) {
@@ -86,10 +87,16 @@ export class NativeInput {
       if (code <= 0) {
         return;
       }
-      send_key(code, scancode, isDown ? 1 : 0, modifiers);
+      jvmLauncher.bridge.send_key(code, scancode, isDown ? 1 : 0, modifiers);
     }
     if (isDown && keychar != '\u0000') {
       this.sendChar(keychar, modifiers)
+    }
+  }
+  public sendAxisEvent(e: AxisEvent){
+    let value =  e.getVerticalAxisValue()
+    for (let i = 0; i < Math.abs(value); i++) {
+      this.sendMouseButton(value > 0 ? Xb_MouseButtonCode.Forward : Xb_MouseButtonCode.Back, true)
     }
   }
   public sendMouseEvent(e:MouseEvent){
@@ -97,25 +104,29 @@ export class NativeInput {
       return;
     if(e.action == MouseAction.Press || e.action == MouseAction.Release || e.action == MouseAction.CANCEL){
       let button = Xb_MouseButtonCode.Left
-      if(e.button == MouseButton.Right){
+      if(e.button == MouseButton.Right)
         button = Xb_MouseButtonCode.Right
-      }
-      if(e.button == MouseButton.Middle){
+      if(e.button == MouseButton.Middle)
         button = Xb_MouseButtonCode.Middle
-      }
-      if(e.button == MouseButton.Back){
-        button = Xb_MouseButtonCode.Back
-      }
-      if(e.button == MouseButton.Forward){
+      if(e.button == MouseButton.Forward)
         button = Xb_MouseButtonCode.Forward
-      }
-      this.sendMouseButton(button, e.action == MouseAction.Press )
+      if(e.button == MouseButton.Back)
+        button = Xb_MouseButtonCode.Back
+      this.sendMouseButton(button, e.action == MouseAction.Press)
     }
+
   }
   public sendMouseButton(keycode:number, down: boolean){
     let code = this.OHOS_MOUSE_MAP.get(keycode);
-    send_mouse_button(code, down ? 1: 0, 0)
+    if(code == 3){
+      if(down)
+        jvmLauncher.bridge.send_scroll(0, 1)
+    } else if(code == 4){
+      if(down)
+        jvmLauncher.bridge.send_scroll(0, -1)
+    } else {
+      jvmLauncher.bridge.send_mouse_button(code, down ? 1 : 0, 0)
+    }
   }
 
 }
-export const nativeInput = new NativeInput()

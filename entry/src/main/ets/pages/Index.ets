@@ -1,4 +1,6 @@
-import { EventHub, Xb_ColorModeManager, Xb_getAppStore, Xb_getPersistence,
+import { EventHub, Xb_ColorModeManager,
+  Xb_CrashUtils,
+  Xb_getAppStore, Xb_getPersistence,
   Xb_SwitchButton,
   Xb_ThemeColorUtil} from 'xb_components';
 import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth,
@@ -25,6 +27,7 @@ struct Index {
   private panOptionR: PanGestureOptions = new PanGestureOptions({ direction: PanDirection.Right })
 
   aboutToAppear(): void {
+    Xb_CrashUtils.initPathStack(HOMLState.pageStack)
     this.viewmodel.initHome()
     // 注册所有事件
     this.registerEvent()

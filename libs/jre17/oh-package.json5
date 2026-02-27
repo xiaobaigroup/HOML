@@ -1,0 +1,12 @@
+{
+  "name": "jre17",
+  "version": "1.0.0",
+  "description": "Please describe the basic information.",
+  "main": "Index.ets",
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "launcher": "file:../launcher.har",
+    "lwjgl3": "file:../lwjgl3"
+  }
+}

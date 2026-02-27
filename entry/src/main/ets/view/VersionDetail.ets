@@ -14,6 +14,8 @@ import { deviceInfo } from "@kit.BasicServicesKit"
 import { SettingsListView } from "../components/SettingsListView"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { buildVersionSettings } from "./GameOptions"
+import { HOMLState } from "../entryability/AppState"
+import { JAVA_VERSION } from "../core/JVMLauncher"
 
 
 @Builder
@@ -121,6 +123,28 @@ struct VersionDetail {
           if(this.versionSetting){
             this.versionSetting.controller = v as string
           }
+        }
+      },
+      {
+        label: "Java版本",
+        value: this.versionSetting?.jreVersion,
+        content: '切换java运行时版本',
+        actionType: Xb_ActionType.MENU,
+        menuSelectList: [
+          {label:"java8", value: JAVA_VERSION.JAVA8},
+          {label:"java17", value: JAVA_VERSION.JAVA17},
+          {label:"java21", value: JAVA_VERSION.JAVA21},
+          {label:"java25", value: JAVA_VERSION.JAVA25},
+        ],
+        menuDisabled:(item, index: number)=>{
+          if(item.value == JAVA_VERSION.JAVA17 || item.value == JAVA_VERSION.JAVA25 ){
+            return false
+          }else{
+            return true
+          }
+        },
+        onChange: (v) => {
+          this.versionSetting.jreVersion = v as JAVA_VERSION
         }
       },
       {

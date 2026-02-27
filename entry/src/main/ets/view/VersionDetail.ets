@@ -15,7 +15,7 @@ import { SettingsListView } from "../components/SettingsListView"
 import { HomlViewModel } from "../core/HomlViewModel"
 import { buildVersionSettings } from "./GameOptions"
 import { HOMLState } from "../entryability/AppState"
-import { JAVA_VERSION } from "../core/JVMLauncher"
+import { hasJre, JAVA_VERSION } from "../core/JVMLauncher"
 
 
 @Builder
@@ -137,11 +137,7 @@ struct VersionDetail {
           {label:"java25", value: JAVA_VERSION.JAVA25},
         ],
         menuDisabled:(item, index: number)=>{
-          if(item.value == JAVA_VERSION.JAVA17 || item.value == JAVA_VERSION.JAVA25 ){
-            return false
-          }else{
-            return true
-          }
+          return !hasJre(item.value as string)
         },
         onChange: (v) => {
           this.versionSetting.jreVersion = v as JAVA_VERSION

@@ -2,7 +2,7 @@ import { HOMLBridge } from "jre25";
 
 import { Context } from "@kit.AbilityKit";
 import { fileIo } from "@kit.CoreFileKit";
-import {  Xb_ToastUtil } from "xb_components";
+import { Xb_GlobalContext, Xb_ToastUtil } from "xb_components";
 import { getRunDirectory } from "./HomlViewModel";
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting";
 import { MinecraftVersion } from "../model/MinecraftVersion";
@@ -17,7 +17,13 @@ export enum JAVA_VERSION{
   JAVA25 = "jre25",
 }
 
-
+export function hasJre(jre:string): boolean {
+  try {
+    return fileIo.accessSync(Xb_GlobalContext.getContext().filesDir + "/" + jre)
+  } catch (error) {
+    return false
+  }
+}
 
 
 interface  LaunchTarget {
@@ -31,7 +37,7 @@ interface  LaunchTarget {
 
 export class JVMLauncher {
   bridge!: HOMLBridge
-  jre: string = JAVA_VERSION.JAVA17
+  jre: string = JAVA_VERSION.JAVA25
   constructor() {
     this.jre = JAVA_VERSION.JAVA25
     //this.switchJre(JAVA_VERSION.JAVA25)
@@ -56,7 +62,7 @@ export class JVMLauncher {
 
     const jreVersion = this.jre
     let appName = "鸿蒙版";
-    let javaHome = context.resourceDir.replace("bundle/entry", "bundle/"+ jreVersion) + `/${jreVersion}`;
+    let javaHome = context.filesDir+ `/${jreVersion}`;
     let dirCache = context.tempDir;
     let nativeLibDir = context.bundleCodeDir + `/${jreVersion}/libs/arm64/`;
     let dirAccountNew = username

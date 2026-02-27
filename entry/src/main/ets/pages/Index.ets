@@ -1,3 +1,4 @@
+import { install as installJre25 } from 'jre25';
 import { EventHub, Xb_ColorModeManager,
   Xb_CrashUtils,
   Xb_getAppStore, Xb_getPersistence,
@@ -29,12 +30,16 @@ struct Index {
   aboutToAppear(): void {
     Xb_CrashUtils.initPathStack(HOMLState.pageStack)
     this.viewmodel.initHome()
+    // TODO 添加 loading
+    // 默认安装jre25
+    installJre25(this.getUIContext().getHostContext()!)
     // 注册所有事件
     this.registerEvent()
     // 发送初始化事件
     this.sendEvent()
     // 初始化所有热更新状态
     this.initState()
+
   }
 
   aboutToDisappear(): void {

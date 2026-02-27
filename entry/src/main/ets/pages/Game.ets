@@ -4,17 +4,17 @@ import { KeyCode } from "@kit.InputKit";
 import { FCLKeycodes } from "../core/FCLKeycode";
 import { GameViewModel } from "../core/GameViewModel";
 import { HomlViewModel } from "../core/HomlViewModel";
-import { surfaceChanged } from "libhoml_bridge.so";
 import { window } from "@kit.ArkUI";
 import { LogsView } from "../view/LogsView";
 import { NativeInput } from "../core/NativeInput";
+import { jvmLauncher } from "../core/JVMLauncher";
 
 class GameXComponentController extends XComponentController{
   onSurfaceCreated(surfaceId: string): void {
-    surfaceChanged(parseInt(surfaceId), 0, 0)
+    jvmLauncher.bridge.surfaceChanged(parseInt(surfaceId), 0, 0)
   }
   onSurfaceChanged(surfaceId: string, rect: SurfaceRect): void {
-    surfaceChanged(parseInt(surfaceId), 800, 800)
+    jvmLauncher.bridge.surfaceChanged(parseInt(surfaceId), 800, 800)
   }
   onSurfaceDestroyed(surfaceId: string): void {
   }

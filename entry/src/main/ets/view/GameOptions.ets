@@ -8,7 +8,7 @@ import { SegmentButtonV2Items, TabSegmentButtonV2 } from "@kit.ArkUI"
 import { RENDERER_LIB, VersionSetting } from "../model/VersionSetting"
 import { deviceInfo } from "@kit.BasicServicesKit"
 import { HomlViewModel } from "../core/HomlViewModel"
-import { JAVA_VERSION } from "../core/JVMLauncher"
+import { hasJre, JAVA_VERSION } from "../core/JVMLauncher"
 
 @Builder
 export function GameOptionsBuilder(name: string, param: Object) {
@@ -161,12 +161,8 @@ struct GameOptions {
           {label:"java21", value: JAVA_VERSION.JAVA21},
           {label:"java25", value: JAVA_VERSION.JAVA25},
         ],
-        menuDisabled:(item, index: number)=>{
-          if(item.value == JAVA_VERSION.JAVA17 || item.value == JAVA_VERSION.JAVA25 ){
-            return false
-          }else{
-            return true
-          }
+        menuDisabled: (item, index: number)=> {
+          return ! hasJre(item.value as string)
         },
         onChange: (v) => {
           state.globalSetting.jreVersion = v as JAVA_VERSION

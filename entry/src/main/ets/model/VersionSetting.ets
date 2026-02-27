@@ -23,5 +23,5 @@ export class VersionSetting {
   @Trace renderer: string = RENDERER_LIB.RENDERER_NAME_MOBILEGLUES
   @Trace uuid: string = ""
   @Trace controller: string = "00000000"
-  @Trace jreVersion: JAVA_VERSION = JAVA_VERSION.JAVA17
+  @Trace jreVersion: JAVA_VERSION = JAVA_VERSION.JAVA25
 }

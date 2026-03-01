@@ -1,4 +1,4 @@
-import { EventHub, Xb_Copy, Xb_FileUtils, Xb_GoToWeb, Xb_ToastUtil } from 'xb_components';
+import { EventHub, Xb_Copy, Xb_FileUtils, Xb_GetResourceString, Xb_GoToWeb, Xb_ToastUtil } from 'xb_components';
 import { EventKey } from '../common/EventKey';
 import { Callback, Session,} from './OAuth';
 
@@ -24,7 +24,7 @@ export class OAuthServer implements Callback{
   }
 
   getClientId(): string {
-    return "c0acdfdd-c70d-4abc-b081-419b93817b7a"
+    return Xb_GetResourceString($r("app.string.MicrosortAuthClientId"))
   }
 
   getClientSecret(): string | null {
@@ -34,7 +34,5 @@ export class OAuthServer implements Callback{
   isPublicClient(): boolean {
    return true
   }
-
-
 
 }

@@ -22,7 +22,10 @@ import { FCLKeycodes } from "./FCLKeycode";
 export class HomlViewModel {
 
   @Trace versions: MinecraftVersion[] = []
+  @Trace acc: MinecraftVersion[] = []
   @Trace current?: MinecraftVersion
+  @Trace accounts: MinecraftAccount[] = []
+
   @Trace gameProfile: GameProfile = Xb_getPersistence(GameProfile, ()=>new GameProfile())!;
   @Trace globalSetting: VersionSetting = Xb_getPersistenceByName(VersionSetting, "global",() => new VersionSetting())!
   @Trace controllerViewModel: Xb_GameControllerViewModel = Xb_getAppStore(Xb_GameControllerViewModel, ()=> new Xb_GameControllerViewModel())!
@@ -35,6 +38,18 @@ export class HomlViewModel {
 
   ms: MicrosoftService = new MicrosoftService(new OAuthServer())
 
+  currentAccountName(){
+    let account = this.accounts.find(d => d.username == this.gameProfile.lastAccount) ?? new MinecraftAccount()
+    return account.session?.profile?.name ?? account.username + "(离线)"
+
+  }
+  async initHome(){
+    await this.changeHome()
+    this.hasJit = hasJit()
+    this.controllerViewModel.loadControllerList(Xb_GlobalContext.getContext(), undefined, FCLKeycodes.onNormKeyCode)
+    this.loadAccounts()
+  }
+
   selectVersion(version: MinecraftVersion){
     this.current = version;
     this.gameProfile.lastVersion = version.id
@@ -46,7 +61,12 @@ export class HomlViewModel {
   }
   async toLogin(){
     try {
-      await this.ms.authenticate()
+      let session = await this.ms.authenticate()
+      let account = session.toAccount()
+      saveAccount(account, this.homeDir, true)
+      this.gameProfile.lastAccount = account.username
+      Xb_ToastUtil.showToast({message:"登录成功"})
+      await this.loadAccounts()
     } catch (e) {
       Xb_ToastUtil.showToast({message:"登录失败:" + e.message})
       console.error("authenticate failure:" + e.message, e.stack)
@@ -109,17 +129,11 @@ export class HomlViewModel {
     this.homeDir  = homeDir;
     this.gameRootDir = homeDir + ".minecraft/"
     fixLibs(this.gameRootDir)
-    createOfflineAccount(this.gameProfile.lastAccount, this.homeDir)
     await this.loadVersions()
     const version = this.versions.find(d=>d.id == this.gameProfile.lastVersion)
     if (version){
       this.current = version
     }
-  }
-  async initHome(){
-    await this.changeHome()
-    this.hasJit = hasJit()
-    this.controllerViewModel.loadControllerList(Xb_GlobalContext.getContext(), undefined, FCLKeycodes.onNormKeyCode)
   }
 
   async loadVersions(){
@@ -170,6 +184,8 @@ export class HomlViewModel {
     }
     this.zipLoading = false
   }
+
+
   async fixGameHome(outDir: string): Promise<boolean>{
     try {
      const foundDir = await findMinecraftDir(outDir);
@@ -199,14 +215,14 @@ export class HomlViewModel {
 
   getRunDirectory(id:string): string {
     const settings = getVersionSetting(id)
-    return getRunDirectory(id,this.gameRootDir, settings)
+    return getRunDirectory(id, this.gameRootDir, settings)
 	}
   launch(){
     const id = this.current!.id
     const gameMenuState = Xb_getPersistence(Xb_GameMenuState)
     const settings = getVersionSetting(id)
     jvmLauncher.launch(Xb_GlobalContext.getContext(),
-      "xiaobai",
+      this.gameProfile.lastAccount,
       {id: this.current!.id, homeDir: this.homeDir, gameRootDir: this.gameRootDir, settings: settings, version: this.current!, arguments:[]},
       gameMenuState?.screenWidth, gameMenuState?.screenHeight)
   }
@@ -214,6 +230,32 @@ export class HomlViewModel {
     const id = this.current!.id
     const settings = getVersionSetting(id)
     return await jvmLauncher.switchJre(settings.jreVersion)
+  }
+
+  async loadAccounts(){
+    let accountPath = this.homeDir + "accounts/"
+    let result: MinecraftAccount[] = []
+    try {
+      let files = await fileIo.listFile(accountPath)
+      for (let f of files.filter( v=> !v.endsWith("removed"))){
+        let dir  = await fileIo.stat(accountPath + f);
+        if(!dir.isDirectory()){
+          try {
+            const json = await fileIo.readText(accountPath + f)
+            result.push(JSON.parse(json) as MinecraftAccount)
+          }catch (_) {
+          }
+        }
+      }
+    } catch (error) {
+    }
+    this.accounts = result;
+
+    if(this.accounts.length == 0){
+      let xiaobai = new MinecraftAccount()
+      saveAccount(xiaobai, this.homeDir)
+      this.accounts.push(xiaobai)
+    }
   }
 }
 
@@ -229,15 +271,17 @@ export function fixLibs(dirGameNew: string){
   }
 
 }
-export function createOfflineAccount(username: string, home:string){
-  if (!fileIo.accessSync(home + "accounts/")) {
+export function saveAccount(account: MinecraftAccount, home: string, update = false){
+  if (!fileIo.accessSync(home + "accounts/"))
     fileIo.mkdirSync(home + "accounts/", true)
-    if (!fileIo.accessSync(`${home}/accounts/${username}.json`)){
-      let file = fileIo.openSync(home + `/accounts/${username}.json`, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE);
-      fileIo.writeSync(file.fd, JSON.stringify(new MinecraftAccount()))
-      fileIo.close(file.fd)
-    }
+  let path = `${home}accounts/${account.username}.json`
+  if (fileIo.accessSync(path) && !update){
+    return;
   }
+  let file = fileIo.openSync(path, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE);
+  fileIo.writeSync(file.fd, JSON.stringify(account))
+  fileIo.fsyncSync(file.fd)
+  fileIo.close(file.fd)
 }
 
 

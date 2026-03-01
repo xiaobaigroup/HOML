@@ -6,6 +6,7 @@ import { OAuth, Callback, GrantFlow, Result as OAuthResult, AuthenticationExcept
   withQuery, } from './OAuth';
 import { http } from '@kit.NetworkKit';
 import { MinecraftAccount } from '../model/MinecraftAccount';
+import { Xb_GetResourceString } from 'xb_components';
 
 // 常量
 const SCOPE = "XboxLive.signin offline_access";
@@ -148,7 +149,7 @@ export class MicrosoftService {
       minecraftResponse.access_token,
       notAfter,
       liveRefreshToken!,
-      new MicrosoftSessionUser(minecraftResponse.username),
+      new MicrosoftSessionUser(minecraftResponse.username, uhs ?? ""),
       new MicrosoftGameProfile(profileResponse.id, profileResponse.name)
     );
   }
@@ -342,20 +343,26 @@ export class MicrosoftSession {
     this.user = user;
     this.profile = profile;
   }
+
   toAccount(){
-    const account =  new MinecraftAccount()
+    const account = new MinecraftAccount()
     account.accessToken = this.accessToken
     account.profileId = this.profile.id
     account.username = this.user.username
+    account.xuid = this.user.uhs
+    account.clientToken = Xb_GetResourceString($r("app.string.MicrosortAuthClientId"))
     account.session = this
+    return account;
   }
 
 
 }
 class MicrosoftSessionUser {
   public readonly username: string;
-  constructor(username: string) {
+  public readonly uhs: string;
+  constructor(username: string, uhs: string) {
     this.username = username;
+    this.uhs = uhs
   }
 };
 class MicrosoftGameProfile {

@@ -21,8 +21,8 @@ export struct Home {
       // 用户管理
       Column({ space: 10 }) {
         if (HOMLState.showUserInfo) {
-          this.avatarAndName()
-          // this.UserInfoConfig()
+           this.avatarAndName()
+           this.UserInfoConfig()
         } else {
           Text('早上好，')
             .fontSize(18)
@@ -139,12 +139,12 @@ export struct Home {
       Image($r('app.media.default_avatar'))
         .width(40)
         .height(40)
-      Text('默认用户')
+      Text(this.viewmodel.currentAccountName())
         .fontSize(21)
         .fontWeight(FontWeight.Bold)
     }
   }
-
+  @Local showAccounts: boolean = false
   @Builder
   UserInfoConfig() {
     List({space: 3}) {
@@ -157,12 +157,21 @@ export struct Home {
             iconColor: HOMLState.currentThemeColor || $r('app.color.blue'),
             theBackgroundColor: $r('sys.color.button_background_color_transparent'),
             onCheck: () => {
+              // TODO
+              if(item.title == "换账号"){
+                this.showAccounts = !this.showAccounts
+              }
               item.onAction()
             },
           })
         }
       })
-    }
+    }.bindMenu(this.showAccounts, this.viewmodel.accounts.map((a)=>{
+      return {value: a.session?.profile.name ?? a.username + "(离线)", action:()=>{
+        this.viewmodel.gameProfile.lastAccount = a.username
+        this.showAccounts = false
+      }} as MenuElement
+    }))
     .height(30)
     .scrollBar(BarState.Off)
     .listDirection(Axis.Horizontal)

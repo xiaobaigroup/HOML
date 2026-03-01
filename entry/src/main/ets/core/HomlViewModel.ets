@@ -51,13 +51,20 @@ export class HomlViewModel {
       Xb_ToastUtil.showToast({message:"登录失败:" + e.message})
       console.error("authenticate failure:" + e.message, e.stack)
     }
-
   }
+  launching = false
   async toGame(){
     if (hasJit()){
-      if(await this.switchJre()){
-        HOMLState.pageStack.pushPathByName("GamePage", true)
+      if(this.launching){
+        return
+      }else {
+        this.launching = true
+        if(await this.switchJre()){
+          this.launching = false
+          HOMLState.pageStack.pushPathByName("GamePage", true)
+        }
       }
+
     } else {
       const versionSettings = getVersionSetting(this.current!.id)
       this.controllerViewModel.switchController(versionSettings.controller)
@@ -77,9 +84,16 @@ export class HomlViewModel {
     if(this.gameProfile.customHomeDir == "" && this.gameProfile.homeType == HomeDirectoryType.Custom)
       return;
     if (this.gameProfile.homeType == HomeDirectoryType.Custom){
-      homeDir = this.gameProfile.customHomeDir + "/"
-      if(homeDir.endsWith(".minecraft/"))
-        homeDir = homeDir.substring(0, homeDir.length - 11)
+      homeDir = this.gameProfile.customHomeDir
+      if(homeDir.endsWith(".minecraft")){
+        let end = homeDir.lastIndexOf(".minecraft")
+        homeDir = homeDir.substring(0, end)
+        Xb_ToastUtil.showToast({message:"请选择上级目录!"})
+        return
+      }
+      if(!homeDir.endsWith("/")){
+        homeDir += "/"
+      }
       this.gameProfile.customHomeDir = homeDir
       await Xb_FileUtils.activatePermissionDir(homeDir)
     }
@@ -109,7 +123,7 @@ export class HomlViewModel {
   }
 
   async loadVersions(){
-    let versionsPath =  this.gameRootDir + "versions/"
+    let versionsPath = this.gameRootDir + "versions/"
     let result: MinecraftVersion[] = []
     try {
       let files = await fileIo.listFile(versionsPath)
@@ -133,12 +147,12 @@ export class HomlViewModel {
     this.zipLoading = true
     let gameUri = await Xb_FileUtils.openFile(Xb_GlobalContext.getContext())
     if(gameUri?.endsWith("zip")){
-      let targetFile = context.tempDir + "/temp.zip";
-      let outDir = this.homeDir + "out";
-      if(! await fileIo.access(outDir)){
-        await fileIo.mkdir(outDir)
-      }
       try {
+        let targetFile = context.tempDir + "/temp.zip";
+        let outDir = this.homeDir + "out";
+        if(! await fileIo.access(outDir)){
+          await fileIo.mkdir(outDir)
+        }
         await fileIo.copyFile(gameUri, targetFile);
         await zlib.decompressFile(targetFile, outDir)
         await fileIo.unlink(targetFile)
@@ -167,7 +181,11 @@ export class HomlViewModel {
         }
         // 如果找到的是包含 versions 的目录
         else if (await fileIo.access(foundDir + "/versions/")) {
-          await fileIo.moveDir(foundDir, this.homeDir + ".minecraft/", 2);
+          const gameHome = this.homeDir + ".minecraft/"
+          if (!await fileIo.access(gameHome)){
+            await fileIo.mkdir(gameHome)
+          }
+          await fileIo.moveDir(foundDir + "/", gameHome, 2);
         }
       } else {
         console.log("No Minecraft directory found in " + outDir);

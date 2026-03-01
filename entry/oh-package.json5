@@ -5,7 +5,7 @@
   "main": "",
   "author": "",
   "license": "",
-  "devDependencies": {
+  "dynamicDependencies": {
     "jre25": "file:../libs/jre25",
     "jre17": "file:../libs/jre17"
   },

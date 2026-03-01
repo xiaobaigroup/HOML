@@ -18,7 +18,7 @@ export enum JAVA_VERSION{
 
 export function hasJre(jre:string): boolean {
   try {
-    return fileIo.accessSync(Xb_GlobalContext.getContext().filesDir + "/" + jre)
+    return hasJreXz(Xb_GlobalContext.getContext(), jre)
   } catch (error) {
     return false
   }
@@ -48,6 +48,7 @@ export class JVMLauncher {
       return false
     }
     try {
+
       await installJre(context, jre)
       let ns: ESObject = await import(jre);
       this.bridge = ns.homl_bridge

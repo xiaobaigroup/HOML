@@ -349,7 +349,7 @@ export class MicrosoftSession {
     account.accessToken = this.accessToken
     account.profileId = this.profile.id
     account.username = this.user.username
-    account.xuid = this.user.uhs
+    account.xuid = undefined
     account.clientToken = Xb_GetResourceString($r("app.string.MicrosortAuthClientId"))
     account.session = this
     return account;

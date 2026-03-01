@@ -41,7 +41,6 @@ export class HomlViewModel {
   currentAccountName(){
     let account = this.accounts.find(d => d.username == this.gameProfile.lastAccount) ?? new MinecraftAccount()
     return account.session?.profile?.name ?? account.username + "(离线)"
-
   }
   async initHome(){
     await this.changeHome()
@@ -242,10 +241,12 @@ export class HomlViewModel {
         if(!dir.isDirectory()){
           try {
             const json = await fileIo.readText(accountPath + f)
-            result.push(JSON.parse(json) as MinecraftAccount)
+            const acc = JSON.parse(json) as MinecraftAccount
+            result.push(acc)
           }catch (_) {
           }
         }
+
       }
     } catch (error) {
     }
@@ -278,7 +279,7 @@ export function saveAccount(account: MinecraftAccount, home: string, update = fa
   if (fileIo.accessSync(path) && !update){
     return;
   }
-  let file = fileIo.openSync(path, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE);
+  let file = fileIo.openSync(path, fileIo.OpenMode.WRITE_ONLY | fileIo.OpenMode.CREATE | fileIo.OpenMode.TRUNC);
   fileIo.writeSync(file.fd, JSON.stringify(account))
   fileIo.fsyncSync(file.fd)
   fileIo.close(file.fd)

@@ -58,9 +58,11 @@ export struct User {
       Xb_PriUserComWeb({
         appName: Xb_GetResourceString($r('app.string.EntryAbility_label'), this),
         needAccount: true,
-        needOpenSource: false,
+        needOpenSource: true,
         isWelcomeStack: this.UIstate.FirstStart,
         nextPage: 'privacy',
+        topWebPaddingValue: { top: 35 },
+        developerName: '广州腾个车信息技术有限公司',
         onRightCheck: this.UIstate.FirstStart ? () => {
           this.pageStack.pushPathByName('privacy', false, true)
         } : () => {
@@ -109,8 +111,9 @@ struct Privacy {
         isEnd: !this.UIstate.FirstStart,
         appName: Xb_GetResourceString($r('app.string.EntryAbility_label'), this),
         needAccount: true,
-        needOpenSource: false,
+        needOpenSource: true,
         onLeftCheck: undefined,
+        developerName: '广州腾个车信息技术有限公司',
         onRightCheck: this.UIstate.FirstStart ? () => {
           this.pageStack.pushPathByName('welcome', false, true)
         } : () => {

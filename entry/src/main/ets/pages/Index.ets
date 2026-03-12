@@ -3,6 +3,7 @@ import { EventHub, Xb_ColorModeManager,
   Xb_getAppStore, Xb_getPersistence,
   Xb_SwitchButton,
   Xb_ThemeColorUtil} from 'xb_components';
+import { animationStyle } from 'xb_components/src/main/ets/components/Animation';
 import { LogoTextMargin, MainTabButtonMargin, MainTabButtonWidth,
   WelcomePageHeight,
   WelcomePageWidth,
@@ -178,19 +179,11 @@ struct Index {
       .alignItems(HorizontalAlign.Center)
       .width(WelcomePageWidth(HOMLState.widthBp))
       .height(WelcomePageHeight(HOMLState.widthBp))
-      .onAppear(() => {
-        console.info('Index-bindSheet', 'UserPriBuilder Column onAppear 被调用')
-      })
-      .onAttach(() => {
-        console.info('Index-bindSheet', 'UserPriBuilder Column onAttach 半模态组件已挂载上树')
-      })
-      .onDetach(() => {
-        console.info('Index-bindSheet', 'UserPriBuilder Column onDetach 半模态组件已卸载')
-      })
     }
     .clip(true)
     .height('100%').width('100%')
     .alignItems(HorizontalAlign.Center)
+    .transition(animationStyle.isHalfModalSpring())
     .justifyContent(HOMLState.widthBp > 1 ? FlexAlign.Center : FlexAlign.End)
     .backgroundBlurStyle(BlurStyle.Thin,
       { colorMode: ThemeColorMode.SYSTEM, adaptiveColor: AdaptiveColor.DEFAULT, scale: 0.3 })

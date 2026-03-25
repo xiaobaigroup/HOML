@@ -32,7 +32,7 @@ struct GameOptions {
       SettingsListView({
         groups: Xb_MakeSettingsGroupData(this.optionsSettingsGroups),
         endBuilder: () => {
-          this.skins()
+         // this.skins()
         }
       })
     }
@@ -109,8 +109,8 @@ struct GameOptions {
       {label:undefined, actionType: Xb_ActionType.GROUP},
       ...advancedStateItems,
       ...buildVersionSettings(this.viewModel.globalSetting),
-      {label:'离线皮肤', actionType: Xb_ActionType.GROUP},
-      ...offlineSkinItems,
+      // {label:'离线皮肤', actionType: Xb_ActionType.GROUP},
+      // ...offlineSkinItems,
     ]
   }
 

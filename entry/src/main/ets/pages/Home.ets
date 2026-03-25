@@ -194,27 +194,25 @@ export struct Home {
 
   get getUserFunBar(): UserInfoFunctionModel[] {
     return [
-      {
-        icon: $r('sys.symbol.clothing_fill'),
-        title: '更衣间',
-        onAction: async () => {
-
-        }
-      },
+      // {
+      //   icon: $r('sys.symbol.clothing_fill'),
+      //   title: '更衣间',
+      //   onAction: async () => {
+      //   }
+      // },
       {
         icon: $r('sys.symbol.arrow_2_circlepath'),
         title: '换账号',
         onAction: async () => {
-
         }
       },
-      {
-        image: $r('app.media.microsoft'),
-        title: '微软',
-        onAction: async () => {
-          this.viewmodel.toLogin()
-        }
-      }
+      // {
+      //   image: $r('app.media.microsoft'),
+      //   title: '微软',
+      //   onAction: async () => {
+      //     this.viewmodel.toLogin()
+      //   }
+      // }
     ]
   }
 

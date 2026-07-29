@@ -4,6 +4,12 @@
     "vendor": "xiaoabi",
     "versionCode": 1010000,
     "versionName": "1.1.0",
+    "appEnvironments": [
+      {
+        "name": "NEED_OPENGL",
+        "value": "1"
+      }
+    ],
     "icon": "$media:layered_image",
     "label": "$string:app_name"
   }

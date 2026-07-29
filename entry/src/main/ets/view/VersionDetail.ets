@@ -151,10 +151,10 @@ struct VersionDetail {
         menuSelectList: [
           {label:"MOBILEGLUES", value: RENDERER_LIB.RENDERER_NAME_MOBILEGLUES},
           {label:"NG_GL4ES", value: RENDERER_LIB.RENDERER_NAME_NG_GL4ES},
-          {label:"OPENGLV4(鸿蒙pc)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
+          {label:"OPENGLV4(鸿蒙PC/平板)", value: RENDERER_LIB.RENDERER_NAME_GLV4},
         ],
         menuDisabled:(item, index: number)=>{
-          if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "Phone" )){
+          if(item.value == RENDERER_LIB.RENDERER_NAME_GLV4 && (deviceInfo.deviceType == "phone" )){
             return true
           }else{
             return false

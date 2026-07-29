@@ -268,7 +268,7 @@ export class JVMLauncher {
     let ret =  this.bridge.dl_open(glibName);
     if(!ret){
       if(glibName == RENDERER_LIB.RENDERER_NAME_GLV4){
-        Xb_ToastUtil.showToast({message: "当前图形驱动仅鸿蒙pc或平板可用"})
+        Xb_ToastUtil.showToast({message: "当前设备不支持桌面OpenGL(仅鸿蒙PC或部分平板可用)"})
       }else{
         Xb_ToastUtil.showToast({message: "图形驱动加载失败"})
       }
